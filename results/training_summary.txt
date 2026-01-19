@@ -1,0 +1,42 @@
+======================================================================
+Training Summary
+======================================================================
+Date: 2025-12-21 20:44:06
+
+Test Set Metrics:
+----------------------------------------------------------------------
+  accuracy: 0.6768
+  precision: 0.1976
+  recall: 0.7919
+  f1: 0.3163
+  auroc: 0.7973
+  auprc: 0.2680
+  brier_score: 0.1912
+
+Cross-Validation Results:
+----------------------------------------------------------------------
+  AUROC: 0.7998 (+/- 0.0022)
+  AUPRC: 0.2716 (+/- 0.0036)
+
+Top 20 Features:
+----------------------------------------------------------------------
+  age: 0.3645
+  high_blood_pressure: 0.2679
+  high_cholesterol: 0.1821
+  diabetes: 0.1167
+  sex: 0.0636
+  creatinine: 0.0007
+  ejection_fraction: 0.0006
+  sodium: 0.0005
+  high_cholesterol_missing: 0.0005
+  cpk_missing: 0.0004
+  sodium_missing: 0.0004
+  cpk: 0.0004
+  ejection_fraction_missing: 0.0004
+  creatinine_missing: 0.0004
+  anaemia_missing: 0.0003
+  smoking_missing: 0.0003
+  anaemia: 0.0001
+  smoking: 0.0001
+  glucose_missing: 0.0000
+  bnp_missing: 0.0000

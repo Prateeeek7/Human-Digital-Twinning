@@ -1,0 +1,147 @@
+:root {
+  /* Medical Color Palette */
+  --color-primary: #0B3C5D;        /* Deep Medical Blue - Trust, science, hospitals */
+  --color-secondary: #1FA2A6;      /* Teal Cyan - Health + data flow */
+  --color-background: #F4F7F9;     /* Soft Off-White - Low eye strain */
+  --color-text-primary: #2E2E2E;   /* Charcoal - Serious, readable */
+  --color-accent: #5CB85C;         /* Muted Green - "Healthy state" indicator */
+  --color-alert: #D9534F;          /* Soft Red - Risk / anomaly */
+  
+  /* Legacy/Compatibility Colors */
+  --color-base: var(--color-primary);
+  --color-highlight: var(--color-secondary);
+  --color-positive: var(--color-accent);
+  --color-neutral: #ADB5BD;
+  --color-negative: var(--color-alert);
+  
+  /* Derived Colors */
+  --color-base-light: #0f4d6d;
+  --color-base-dark: #072836;
+  --color-highlight-light: #2bb3b8;
+  --color-highlight-dark: #187d81;
+  
+  /* Text Colors */
+  --color-text-secondary: #5a5a5a;
+  --color-text-muted: #8a8a8a;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-secondary: #ffffff;
+  
+  /* Background */
+  --color-bg-primary: var(--color-background);
+  --color-bg-secondary: #ffffff;
+  --color-bg-card: #ffffff;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-highlight);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-highlight-light);
+}
+
+/* Utility Classes */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+.mt-4 { margin-top: var(--spacing-xl); }
+
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+.mb-4 { margin-bottom: var(--spacing-xl); }
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: var(--spacing-md);
+}
+
+.gap-4 {
+  gap: var(--spacing-xl);
+}
+

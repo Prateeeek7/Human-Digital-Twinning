@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Guide - HF-Digital Twin Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            line-height: 1.7;
+            color: #2E2E2E;
+            background: #F4F7F9;
+            padding: 2rem;
+        }
+        .container {
+            overflow-x: auto;
+            word-wrap: break-word;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(11, 60, 93, 0.1);
+        }
+        h1 {
+            color: #0B3C5D;
+            border-bottom: 3px solid #1FA2A6;
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        h2 {
+            color: #0B3C5D;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid #F4F7F9;
+            font-size: 1.8rem;
+        }
+        h3 {
+            color: #1FA2A6;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-size: 1.4rem;
+        }
+        h4 {
+            color: #2E2E2E;
+            margin-top: 1.25rem;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        p {
+            max-width: 100%;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            margin-bottom: 1rem;
+        }
+        code {
+            background: #F4F7F9;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'Courier New', 'Monaco', monospace;
+            font-size: 0.9em;
+            color: #D9534F;
+        }
+        pre {
+            background: #2E2E2E;
+            color: #F4F7F9;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-left: 4px solid #1FA2A6;
+        }
+        pre code {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: transparent;
+            color: inherit;
+            padding: 0;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #F4F7F9;
+        }
+        th {
+            background: #0B3C5D;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+        tr:hover {
+            background: #F4F7F9;
+        }
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        li {
+            max-width: 100%;
+            word-wrap: break-word;
+            margin-bottom: 0.5rem;
+        }
+        a {
+            color: #1FA2A6;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        a:hover {
+            border-bottom-color: #1FA2A6;
+        }
+        strong {
+            color: #0B3C5D;
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin: 0 0.25rem;
+        }
+        .badge-success { background: #5CB85C; color: white; }
+        .badge-info { background: #1FA2A6; color: white; }
+        .badge-warning { background: #D9534F; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p><h1>HF-Digital Twin Platform - User Guide</h1></p><p><strong>Version:</strong> 0.1.0  
+<strong>Last Updated:</strong> December 2024</p><p>---</p><p><h2>Table of Contents</h2></p><p><ol>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#dashboard-overview">Dashboard Overview</a></li>
+<li><a href="#medication-recommendations">Medication Recommendations</a></li>
+<li><a href="#document-upload--parsing">Document Upload & Parsing</a></li>
+</ol>
+6. <a href="#treatment-scenario-comparison">Treatment Scenario Comparison</a>
+7. <a href="#best-practices">Best Practices</a>
+8. <a href="#troubleshooting">Troubleshooting</a>
+9. <a href="#faq">FAQ</a></p><p>---</p><p><h2>Introduction</h2></p><p>The HF-Digital Twin Platform is a hospital-grade AI system designed to provide personalized medication recommendations for heart failure patients. The platform combines machine learning models trained on 253,680+ patient records with clinical guidelines to deliver evidence-based treatment recommendations.</p><p><h3>Key Features</h3></p><p><ul>
+<li><strong>Personalized Medication Recommendations:</strong> AI-powered recommendations based on patient characteristics</li>
+<li><strong>Document Parsing:</strong> Automatic extraction from prescriptions and lab reports using OCR</li>
+<li><strong>Treatment Comparison:</strong> Side-by-side comparison of multiple treatment scenarios</li>
+<li><strong>Drug Interaction Checking:</strong> Automatic validation of medication safety</li>
+<li><strong>Trajectory Forecasting:</strong> Prediction of patient outcomes over time</li>
+</ol></p><p><h3>System Requirements</h3></p><p><ul>
+<li>Modern web browser (Chrome, Firefox, Safari, Edge)</li>
+<li>Internet connection for API access</li>
+<li>JavaScript enabled</li>
+</ol></p><p>---</p><p><h2>Getting Started</h2></p><p><h3>Accessing the Platform</h3></p><p><ol>
+<li>Navigate to the platform URL (typically <code>http://localhost:3000</code> for local development)</li>
+<li>The dashboard will load automatically</li>
+<li>No login required for development mode</li>
+</ol></p><p><h3>First Steps</h3></p><p><ol>
+<li><strong>Review the Dashboard:</strong> Familiarize yourself with system statistics and quick actions</li>
+<li><strong>Try Recommendations:</strong> Enter sample patient data to see recommendations</li>
+<li><strong>Upload Documents:</strong> Test document parsing with sample prescriptions or lab reports</li>
+<li><strong>Compare Scenarios:</strong> Create multiple treatment scenarios to compare outcomes</li>
+</ol></p><p>---</p><p><h2>Dashboard Overview</h2></p><p>The dashboard provides an overview of the system and quick access to key features.</p><p><h3>Statistics Panel</h3></p><p><ul>
+<li><strong>Patients in Database:</strong> Total number of patients used for training (253,680+)</li>
+<li><strong>Recommendations Generated:</strong> Count of recommendations created</li>
+<li><strong>Documents Processed:</strong> Number of documents parsed</li>
+<li><strong>Average Accuracy:</strong> Model performance metrics</li>
+</ol></p><p><h3>Quick Actions</h3></p><p>Four main sections accessible from the dashboard:</p><p><ol>
+<li><strong>Recommendations:</strong> Get personalized medication recommendations</li>
+<li><strong>Upload Documents:</strong> Process prescriptions and lab reports</li>
+<li><strong>Compare Treatments:</strong> Compare multiple treatment scenarios</li>
+<li><strong>Dashboard:</strong> Return to this overview page</li>
+</ol></p><p>---</p><p><h2>Medication Recommendations</h2></p><p><h3>Purpose</h3></p><p>Generate personalized medication recommendations based on patient demographics, vitals, lab values, and medical history.</p><p><h3>Step-by-Step Process</h3></p><p><h4>1. Navigate to Recommendations</h4></p><p>Click "Recommendations" in the navigation menu or from the dashboard quick actions.</p><p><h4>2. Enter Patient Information</h4></p><p>Fill in the patient information form. Fields are organized into sections:</p><p><strong>Demographics:</strong>
+<ul>
+<li><strong>Age:</strong> Patient age in years</li>
+<li><strong>Sex:</strong> Biological sex (M/F)</li>
+</ol></p><p><strong>Vital Signs:</strong>
+<ul>
+<li><strong>Heart Rate:</strong> Beats per minute (bpm)</li>
+<li><strong>Systolic BP:</strong> Systolic blood pressure (mmHg)</li>
+<li><strong>Diastolic BP:</strong> Diastolic blood pressure (mmHg)</li>
+</ol></p><p><strong>Laboratory Values:</strong>
+<ul>
+<li><strong>Ejection Fraction:</strong> Heart's pumping efficiency (0-100%, entered as percentage)</li>
+<li><strong>Creatinine:</strong> Kidney function marker (mg/dL)</li>
+<li><strong>Sodium:</strong> Electrolyte level (mEq/L)</li>
+<li><strong>Cholesterol:</strong> Total cholesterol (mg/dL)</li>
+<li><strong>Glucose:</strong> Blood sugar level (mg/dL)</li>
+<li><strong>Hemoglobin:</strong> Blood oxygen carrier (g/dL)</li>
+</ol></p><p><strong>Medical History:</strong>
+<ul>
+<li>Checkboxes for common conditions:</li>
+<li>Diabetes</li>
+<li>High Blood Pressure</li>
+<li>High Cholesterol</li>
+<li>Anaemia</li>
+<li>Smoking</li>
+</ol></p><p><strong>Current Medications:</strong>
+<ul>
+<li>Add current medications using the "Add Medication" button</li>
+<li>Medications are displayed as tags that can be removed</li>
+</ol></p><p><h4>3. Set Prediction Horizon</h4></p><p><ul>
+<li><strong>Time Horizon:</strong> Select prediction timeframe (default: 90 days)</li>
+<li>Range: 1-365 days</li>
+<li>Longer horizons provide more comprehensive trajectory predictions</li>
+</ol></p><p><h4>4. Generate Recommendations</h4></p><p>Click the "Get Recommendations" button. The system will:</p><p><ol>
+<li>Validate input data</li>
+<li>Extract patient features</li>
+<li>Generate medication recommendations</li>
+<li>Check for drug interactions</li>
+<li>Predict treatment effects</li>
+</ol>
+6. Calculate expected benefits</p><p><h4>5. Review Results</h4></p><p>Results are displayed in several sections:</p><p><strong>Top Recommendation:</strong>
+<ul>
+<li>Highest-scoring medication</li>
+<li>Safety status (Safe/Unsafe)</li>
+<li>Recommendation score</li>
+<li>Expected benefits</li>
+</ol></p><p><strong>All Recommendations:</strong>
+<ul>
+<li>List of all recommended medications</li>
+<li>Sorted by recommendation score</li>
+<li>Each includes:</li>
+<li>Medication name</li>
+<li>Recommendation score</li>
+<li>Safety status</li>
+<li>Predicted effects</li>
+<li>Expected benefits</li>
+</ol></p><p><strong>Optimal Combination:</strong>
+<ul>
+<li>Best medication combination</li>
+<li>Considers drug interactions</li>
+<li>Maximum expected benefit</li>
+</ol></p><p><strong>Predicted Outcomes:</strong>
+<ul>
+<li>Baseline predictions (without new medications)</li>
+<li>Predicted changes with recommended medications</li>
+<li>Metrics include:</li>
+<li>Ejection fraction improvement</li>
+<li>Mortality risk reduction</li>
+<li>Readmission risk reduction</li>
+</ol></p><p><h3>Understanding Results</h3></p><p><strong>Recommendation Score:</strong>
+<ul>
+<li>Range: 0.0 - 1.0</li>
+<li>Higher scores indicate better fit for the patient</li>
+<li>Based on patient characteristics and clinical evidence</li>
+</ol></p><p><strong>Safety Status:</strong>
+<ul>
+<li><strong>Safe:</strong> No severe interactions detected</li>
+<li><strong>Unsafe:</strong> Drug interactions or contraindications present</li>
+<li>Review interactions list for details</li>
+</ol></p><p><strong>Expected Benefits:</strong>
+<ul>
+<li>Quantified improvement in patient outcomes</li>
+<li>Based on predicted treatment effects</li>
+<li>Higher values indicate greater expected improvement</li>
+</ol></p><p><h3>Example Use Case</h3></p><p><strong>Scenario:</strong> 65-year-old male with heart failure, ejection fraction 35%, diabetes, and hypertension.</p><p><strong>Input:</strong>
+<ul>
+<li>Age: 65</li>
+<li>Sex: M</li>
+<li>Ejection Fraction: 35%</li>
+<li>Systolic BP: 140</li>
+<li>Diabetes: Yes</li>
+<li>High Blood Pressure: Yes</li>
+<li>Current Medications: None</li>
+</ol></p><p><strong>Expected Output:</strong>
+<ul>
+<li>Top recommendation: ACE Inhibitor</li>
+<li>Score: 0.85</li>
+<li>Safety: Safe</li>
+<li>Expected EF improvement: +5%</li>
+<li>Mortality risk reduction: -10%</li>
+</ol></p><p>---</p><p><h2>Document Upload & Parsing</h2></p><p><h3>Purpose</h3></p><p>Automatically extract information from prescription images/PDFs and lab reports using OCR technology.</p><p><h3>Supported File Formats</h3></p><p><ul>
+<li><strong>Images:</strong> JPG, JPEG, PNG</li>
+<li><strong>Documents:</strong> PDF</li>
+<li><strong>Maximum File Size:</strong> 10 MB (recommended)</li>
+</ol></p><p><h3>Step-by-Step Process</h3></p><p><h4>1. Navigate to Documents</h4></p><p>Click "Documents" in the navigation menu.</p><p><h4>2. Select Document Type</h4></p><p>Choose the type of document you're uploading:</p><p><ul>
+<li><strong>Prescription:</strong> For medication prescriptions</li>
+<li><strong>Lab Report:</strong> For laboratory test results</li>
+</ol></p><p><h4>3. Upload File</h4></p><p><strong>Option A: Drag and Drop</strong>
+<ul>
+<li>Drag file from your computer into the upload area</li>
+<li>File will be highlighted when ready</li>
+</ol></p><p><strong>Option B: Click to Browse</strong>
+<ul>
+<li>Click the upload area</li>
+<li>Select file from file browser</li>
+</ol></p><p><h4>4. Process Document</h4></p><p>Click "Upload & Parse" button. The system will:</p><p><ol>
+<li>Upload file to server</li>
+<li>Extract text using OCR</li>
+<li>Parse document structure</li>
+<li>Extract relevant information</li>
+<li>Optionally generate recommendations</li>
+</ol></p><p><h4>5. Review Parsed Results</h4></p><p><strong>For Prescriptions:</strong>
+<ul>
+<li><strong>Patient Information:</strong> Name, age (if available)</li>
+<li><strong>Medications:</strong> List of prescribed medications</li>
+<li><strong>Medication Details:</strong> Dosage, frequency, instructions</li>
+<li><strong>Prescriber:</strong> Doctor name</li>
+<li><strong>Date:</strong> Prescription date</li>
+</ol></p><p><strong>For Lab Reports:</strong>
+<ul>
+<li><strong>Patient Information:</strong> Name (if available)</li>
+<li><strong>Lab Values:</strong> Extracted laboratory results</li>
+<li>Creatinine</li>
+<li>Sodium</li>
+<li>Cholesterol</li>
+<li>Ejection Fraction</li>
+<li>Other values found</li>
+<li><strong>Date:</strong> Report date</li>
+</ol></p><p><strong>Extracted Text:</strong>
+<ul>
+<li>Raw OCR text for verification</li>
+<li>Can be used to verify parsing accuracy</li>
+</ol></p><p><h4>6. Get Recommendations (Optional)</h4></p><p>If "Get Recommendations" is enabled:</p><p><ul>
+<li>System uses parsed patient information</li>
+<li>Generates medication recommendations</li>
+<li>Uses extracted lab values as patient features</li>
+</ol></p><p><h3>Tips for Best Results</h3></p><p><strong>Image Quality:</strong>
+<ul>
+<li>Use high-resolution images (300 DPI or higher)</li>
+<li>Ensure good lighting and contrast</li>
+<li>Avoid blurry or skewed images</li>
+<li>Remove shadows and reflections</li>
+</ol></p><p><strong>PDF Quality:</strong>
+<ul>
+<li>Use text-based PDFs (not scanned images)</li>
+<li>Ensure PDFs are not password-protected</li>
+<li>Verify text is selectable</li>
+</ol></p><p><strong>Document Format:</strong>
+<ul>
+<li>Standard prescription formats work best</li>
+<li>Clear, typed text is more accurate than handwriting</li>
+<li>Structured lab reports parse better than free-form text</li>
+</ol></p><p><h3>Common Issues</h3></p><p><strong>Low OCR Accuracy:</strong>
+<ul>
+<li>Improve image quality</li>
+<li>Use higher resolution</li>
+<li>Ensure proper lighting</li>
+</ol></p><p><strong>Missing Information:</strong>
+<ul>
+<li>Some fields may not be present in document</li>
+<li>System will use available information</li>
+<li>Manual entry may be needed for missing fields</li>
+</ol></p><p><strong>Parsing Errors:</strong>
+<ul>
+<li>Review extracted text</li>
+<li>Verify medication names are correct</li>
+<li>Check dosage and frequency accuracy</li>
+</ol></p><p>---</p><p><h2>Treatment Scenario Comparison</h2></p><p><h3>Purpose</h3></p><p>Compare multiple treatment scenarios side-by-side to identify the optimal medication combination.</p><p><h3>Step-by-Step Process</h3></p><p><h4>1. Navigate to Comparison</h4></p><p>Click "Comparison" in the navigation menu.</p><p><h4>2. Enter Patient Information</h4></p><p>Fill in patient demographics, vitals, and lab values (same as Recommendations page).</p><p><h4>3. Create Treatment Scenarios</h4></p><p><strong>Default Scenarios:</strong>
+<ul>
+<li>Two default scenarios are pre-loaded</li>
+<li>Can be modified or removed</li>
+</ol></p><p><strong>Add Scenario:</strong>
+<ul>
+<li>Click "Add New Scenario" button</li>
+<li>New scenario card appears</li>
+</ol></p><p><strong>Add Medications to Scenario:</strong>
+<ul>
+<li>Click "Add Medication" in scenario card</li>
+<li>Enter medication name (e.g., "ace_inhibitor")</li>
+<li>Medication appears as tag</li>
+<li>Can add multiple medications per scenario</li>
+</ol></p><p><strong>Remove Medications:</strong>
+<ul>
+<li>Click "×" on medication tag to remove</li>
+</ol></p><p><strong>Remove Scenario:</strong>
+<ul>
+<li>Click "×" button on scenario header</li>
+<li>Minimum one scenario required</li>
+</ol></p><p><h4>4. Compare Scenarios</h4></p><p>Click "Compare Scenarios" button. The system will:</p><p><ol>
+<li>Validate patient information</li>
+<li>Evaluate each scenario</li>
+<li>Predict outcomes for each</li>
+<li>Check drug interactions</li>
+<li>Calculate expected benefits</li>
+</ol>
+6. Rank scenarios by benefit</p><p><h4>5. Review Comparison Results</h4></p><p><strong>Summary:</strong>
+<ul>
+<li>Number of scenarios compared</li>
+<li>Best scenario identified</li>
+</ol></p><p><strong>Comparison Chart:</strong>
+<ul>
+<li>Bar chart showing total benefit for each scenario</li>
+<li>Visual comparison of outcomes</li>
+</ol></p><p><strong>Individual Scenario Results:</strong></p><p>Each scenario displays:</p><p><ul>
+<li><strong>Medications:</strong> List of medications in scenario</li>
+<li><strong>Total Benefit:</strong> Overall expected benefit score</li>
+<li><strong>Safety Status:</strong> Safe/Unsafe with interaction details</li>
+<li><strong>Predicted Effects:</strong></li>
+<li>Ejection fraction change</li>
+<li>Mortality risk change</li>
+<li>Readmission risk change</li>
+<li><strong>Best Option Badge:</strong> Highlighted on optimal scenario</li>
+</ol></p><p><strong>Drug Interactions:</strong>
+<ul>
+<li>Listed if present</li>
+<li>Severity level (Severe, Moderate, Mild)</li>
+<li>Recommended actions</li>
+</ol></p><p><h3>Interpreting Results</h3></p><p><strong>Total Benefit:</strong>
+<ul>
+<li>Higher values indicate better expected outcomes</li>
+<li>Considers multiple factors:</li>
+<li>Ejection fraction improvement</li>
+<li>Risk reduction</li>
+<li>Safety profile</li>
+</ol></p><p><strong>Best Option:</strong>
+<ul>
+<li>Scenario with highest total benefit</li>
+<li>Marked with "Best Option" badge</li>
+<li>Consider safety and interactions</li>
+</ol></p><p><strong>Safety Assessment:</strong>
+<ul>
+<li>Review all interactions</li>
+<li>Severe interactions require attention</li>
+<li>May need dosage adjustments or alternative medications</li>
+</ol></p><p><h3>Example Use Case</h3></p><p><strong>Scenario:</strong> Compare ACE inhibitor vs. ARNI for heart failure patient.</p><p><strong>Patient:</strong>
+<ul>
+<li>Age: 65, Male</li>
+<li>EF: 35%</li>
+<li>Diabetes: Yes</li>
+<li>Current: Beta blocker</li>
+</ol></p><p><strong>Scenarios:</strong>
+<ol>
+<li>ACE Inhibitor + Beta Blocker</li>
+<li>ARNI + Beta Blocker</li>
+</ol></p><p><strong>Expected Results:</strong>
+<ul>
+<li>Scenario 2 (ARNI) may show higher benefit</li>
+<li>Both scenarios safe</li>
+<li>ARNI may show better EF improvement</li>
+</ol></p><p>---</p><p><h2>Best Practices</h2></p><p><h3>Data Entry</h3></p><p><ol>
+<li><strong>Complete Information:</strong> Provide as much patient data as possible for better recommendations</li>
+<li><strong>Accurate Values:</strong> Ensure lab values and vitals are current and accurate</li>
+<li><strong>Current Medications:</strong> List all current medications to avoid interactions</li>
+<li><strong>Regular Updates:</strong> Update patient information as conditions change</li>
+</ol></p><p><h3>Using Recommendations</h3></p><p><ol>
+<li><strong>Review All Options:</strong> Don't rely solely on top recommendation</li>
+<li><strong>Check Interactions:</strong> Always review drug interaction warnings</li>
+<li><strong>Consider Context:</strong> Recommendations are evidence-based but require clinical judgment</li>
+<li><strong>Monitor Outcomes:</strong> Track patient response and adjust as needed</li>
+</ol></p><p><h3>Document Processing</h3></p><p><ol>
+<li><strong>Quality First:</strong> Use high-quality images for better OCR accuracy</li>
+<li><strong>Verify Results:</strong> Always review parsed information for accuracy</li>
+<li><strong>Manual Correction:</strong> Correct any parsing errors before using data</li>
+<li><strong>Privacy:</strong> Ensure patient privacy when uploading documents</li>
+</ol></p><p><h3>Treatment Comparison</h3></p><p><ol>
+<li><strong>Multiple Scenarios:</strong> Compare at least 2-3 scenarios</li>
+<li><strong>Consider Safety:</strong> Don't choose highest benefit if safety concerns exist</li>
+<li><strong>Patient Factors:</strong> Consider patient-specific factors not captured in data</li>
+<li><strong>Clinical Guidelines:</strong> Align with established clinical guidelines</li>
+</ol></p><p>---</p><p><h2>Troubleshooting</h2></p><p><h3>Recommendations Not Loading</h3></p><p><strong>Symptoms:</strong> Recommendations page doesn't load or shows error</p><p><strong>Solutions:</strong>
+<ol>
+<li>Check API server is running (<code>http://localhost:8000</code>)</li>
+<li>Verify model is trained (<code>models/personalized_medication_recommender.pkl</code> exists)</li>
+<li>Check browser console for errors</li>
+<li>Refresh page</li>
+</ol></p><p><h3>Document Upload Fails</h3></p><p><strong>Symptoms:</strong> File upload fails or shows error</p><p><strong>Solutions:</strong>
+<ol>
+<li>Check file size (should be < 10 MB)</li>
+<li>Verify file format (JPG, PNG, PDF)</li>
+<li>Check OCR dependencies are installed</li>
+<li>Try different file</li>
+<li>Check server logs for detailed error</li>
+</ol></p><p><h3>Parsing Inaccurate</h3></p><p><strong>Symptoms:</strong> Extracted information is incorrect</p><p><strong>Solutions:</strong>
+<ol>
+<li>Improve image quality</li>
+<li>Use higher resolution</li>
+<li>Ensure good lighting</li>
+<li>Try different file format</li>
+<li>Manually correct parsed data</li>
+</ol></p><p><h3>Comparison Not Working</h3></p><p><strong>Symptoms:</strong> Scenario comparison fails</p><p><strong>Solutions:</strong>
+<ol>
+<li>Verify patient information is complete</li>
+<li>Check at least one scenario has medications</li>
+<li>Ensure API server is running</li>
+<li>Check browser console for errors</li>
+</ol></p><p><h3>Slow Performance</h3></p><p><strong>Symptoms:</strong> System is slow to respond</p><p><strong>Solutions:</strong>
+<ol>
+<li>Check API server resources</li>
+<li>Reduce file sizes for document upload</li>
+<li>Limit number of scenarios in comparison</li>
+<li>Check network connection</li>
+</ol></p><p>---</p><p><h2>FAQ</h2></p><p><h3>General Questions</h3></p><p><strong>Q: Is this system a replacement for clinical judgment?</strong>  
+A: No. The platform provides evidence-based recommendations but should be used as a decision support tool alongside clinical expertise.</p><p><strong>Q: What data is used for training?</strong>  
+A: The system is trained on 253,680+ de-identified patient records from multiple sources including UCI, Kaggle, and MIMIC-IV datasets.</p><p><strong>Q: How accurate are the recommendations?</strong>  
+A: Model performance varies by medication and patient population. Average AUROC is approximately 0.80. Individual recommendations should be validated clinically.</p><p><strong>Q: Is patient data stored?</strong>  
+A: In development mode, data is processed but not permanently stored. In production, data handling follows HIPAA and local privacy regulations.</p><p><h3>Technical Questions</h3></p><p><strong>Q: What browsers are supported?</strong>  
+A: Modern browsers including Chrome, Firefox, Safari, and Edge. JavaScript must be enabled.</p><p><strong>Q: Can I use the API programmatically?</strong>  
+A: Yes. See API Documentation for details on REST API endpoints.</p><p><strong>Q: How do I train the models?</strong>  
+A: See Technical Documentation for model training procedures.</p><p><strong>Q: What file formats are supported for documents?</strong>  
+A: Images (JPG, PNG) and PDFs. Maximum recommended size is 10 MB.</p><p><h3>Clinical Questions</h3></p><p><strong>Q: Are drug interactions checked?</strong>  
+A: Yes. The system checks for drug-drug interactions and contraindications before recommending medications.</p><p><strong>Q: How are recommendations generated?</strong>  
+A: Recommendations are based on patient characteristics, clinical evidence from training data, and established guidelines for heart failure management.</p><p><strong>Q: Can I customize recommendations?</strong>  
+A: The system provides evidence-based recommendations. Clinical judgment should be applied to customize for individual patients.</p><p><strong>Q: What medications are supported?</strong>  
+A: The system supports common heart failure medications including ACE inhibitors, ARNIs, beta blockers, diuretics, and others. See model training data for complete list.</p><p>---</p><p><h2>Support</h2></p><p>For technical support or questions:</p><p><ul>
+<li><strong>Email:</strong> support@pdt.com</li>
+<li><strong>Documentation:</strong> See Technical Documentation and API Documentation</li>
+<li><strong>Issues:</strong> Report bugs or request features through project repository</li>
+</ol></p><p>---</p><p><strong>Last Updated:</strong> December 2024  
+<strong>Version:</strong> 0.1.0  
+<strong>Platform:</strong> HF-Digital Twin Platform</p><p></p>
+    </div>
+</body>
+</html>
