@@ -1,0 +1,26 @@
+% TikZ: Recommendation pipeline flowchart
+\begin{tikzpicture}[
+  startstop/.style={rectangle, draw, fill=red!15, rounded corners},
+  process/.style={rectangle, draw, fill=blue!15},
+  decision/.style={diamond, draw, fill=green!15, aspect=2},
+  arrow/.style={->, thick},
+  node distance=0.8cm
+  ]
+  \node[startstop] (start) {Patient Input};
+  \node[process, below=of start] (validate) {Validate Demographics \& EF};
+  \node[decision, below=of validate] (trained) {Model Trained?};
+  \node[process, below left=1.2cm and 0.5cm of trained] (ml) {ML Recommendation};
+  \node[process, below right=1.2cm and 0.5cm of trained] (err) {Return Error};
+  \node[process, below=1.2cm of ml] (db) {Medication DB Lookup};
+  \node[process, below=of db] (combo) {Combination Success Predictor};
+  \node[process, below=of combo] (out) {Specific Drugs + Dosages};
+  \node[startstop, below=of out] (end) {Recommendations};
+  \draw[arrow] (start) -- (validate);
+  \draw[arrow] (validate) -- (trained);
+  \draw[arrow] (trained) -- node[left] {Yes} (ml);
+  \draw[arrow] (trained) -- node[right] {No} (err);
+  \draw[arrow] (ml) -- (db);
+  \draw[arrow] (db) -- (combo);
+  \draw[arrow] (combo) -- (out);
+  \draw[arrow] (out) -- (end);
+\end{tikzpicture}
