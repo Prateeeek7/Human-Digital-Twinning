@@ -123,4 +123,15 @@ export const getSchedule = async () => {
     return response.data;
 };
 
+// Provider Preferences Endpoints
+export const getProviderPreferences = async (providerId: string = "DR-SMITH") => {
+    const response = await api.get(`/hospital/preferences/${providerId}`);
+    return response.data;
+};
+
+export const updateProviderPreferences = async (providerId: string, prefs: any) => {
+    const response = await api.put(`/hospital/preferences/${providerId}`, prefs);
+    return response.data;
+};
+
 export default api;

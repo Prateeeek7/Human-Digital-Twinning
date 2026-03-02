@@ -124,3 +124,54 @@ async def get_daily_schedule(provider: str = Query("DR-SMITH")):
         return [dict(row) for row in rows]
     finally:
         conn.close()
+
+# ---------------------------------------------------------
+# Provider Preferences
+# ---------------------------------------------------------
+class ProviderPreferencesModel(BaseModel):
+    provider_id: str
+    theme: str
+    density: str
+    alert_threshold_hr: int
+    session_timeout_minutes: int
+
+@router.get("/preferences/{provider_id}", response_model=ProviderPreferencesModel)
+async def get_provider_preferences(provider_id: str):
+    """Get the user interface and system preferences for a specific provider."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            SELECT * FROM provider_preferences
+            WHERE provider_id = ?
+        ''', (provider_id,))
+        row = cursor.fetchone()
+        if not row:
+            raise HTTPException(status_code=404, detail="Preferences not found for provider")
+        return dict(row)
+    finally:
+        conn.close()
+
+@router.put("/preferences/{provider_id}", response_model=ProviderPreferencesModel)
+async def update_provider_preferences(provider_id: str, prefs: ProviderPreferencesModel):
+    """Update the user interface and system preferences for a specific provider."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute('''
+            UPDATE provider_preferences
+            SET theme = ?, density = ?, alert_threshold_hr = ?, session_timeout_minutes = ?
+            WHERE provider_id = ?
+        ''', (prefs.theme, prefs.density, prefs.alert_threshold_hr, prefs.session_timeout_minutes, provider_id))
+        
+        if cursor.rowcount == 0:
+            # If standard update failed, the provider might not exist yet, let's insert
+            cursor.execute('''
+                INSERT INTO provider_preferences (provider_id, theme, density, alert_threshold_hr, session_timeout_minutes)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (provider_id, prefs.theme, prefs.density, prefs.alert_threshold_hr, prefs.session_timeout_minutes))
+            
+        conn.commit()
+        return dict(prefs)
+    finally:
+        conn.close()

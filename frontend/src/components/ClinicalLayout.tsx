@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import PatientBanner from './PatientBanner';
+import ProviderSettings from './ProviderSettings';
 import './ClinicalLayout.css';
 import { Activity, Stethoscope, Settings, Menu, Users, Bed, Inbox, Calendar, FileText, X, UserX, Monitor } from 'lucide-react';
 
@@ -12,6 +13,16 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
     const location = useLocation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+    // Provider Settings Modal State
+    const [isProviderSettingsOpen, setIsProviderSettingsOpen] = useState(false);
+    const [providerSettingsTab, setProviderSettingsTab] = useState<'display' | 'alerts' | 'security'>('display');
+
+    const openSettings = (tab: 'display' | 'alerts' | 'security') => {
+        setProviderSettingsTab(tab);
+        setIsProviderSettingsOpen(true);
+        setIsSettingsOpen(false); // Close dropdown
+    };
 
     return (
         <div className="app-container">
@@ -50,15 +61,21 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
                         {isSettingsOpen && (
                             <div className="settings-dropdown">
                                 <div className="sd-header">PROVIDER PREFERENCES</div>
-                                <button className="sd-item"><Monitor size={14} /> Display Settings</button>
-                                <button className="sd-item"><Activity size={14} /> Alert Thresholds</button>
+                                <button className="sd-item" onClick={() => openSettings('display')}><Monitor size={14} /> Display Settings</button>
+                                <button className="sd-item" onClick={() => openSettings('alerts')}><Activity size={14} /> Alert Thresholds</button>
                                 <div className="sd-divider"></div>
-                                <button className="sd-item text-critical"><UserX size={14} /> Session Lock</button>
+                                <button className="sd-item text-critical" onClick={() => openSettings('security')}><UserX size={14} /> Session Lock</button>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
+
+            <ProviderSettings
+                isOpen={isProviderSettingsOpen}
+                onClose={() => setIsProviderSettingsOpen(false)}
+                initialTab={providerSettingsTab}
+            />
 
             {/* Slide-out Main Menu overlay */}
             <div className={`app-sidebar ${isMenuOpen ? 'open' : ''}`}>
@@ -98,7 +115,7 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
             <main className="workspace">
                 {children}
             </main>
-        </div>
+        </div >
     );
 };
 

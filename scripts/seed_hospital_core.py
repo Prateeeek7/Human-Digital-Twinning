@@ -268,6 +268,32 @@ for i in range(40):
     ))
 
 
+# ---------------------------------------------------------
+# 5. Provider Preferences
+# ---------------------------------------------------------
+print("Creating 'provider_preferences' table...")
+cursor.execute('''
+CREATE TABLE provider_preferences (
+    provider_id TEXT PRIMARY KEY,
+    theme TEXT,
+    density TEXT,
+    alert_threshold_hr INTEGER,
+    session_timeout_minutes INTEGER
+)
+''')
+
+print("Seeding default preferences for DR-SMITH...")
+cursor.execute('''
+INSERT INTO provider_preferences (provider_id, theme, density, alert_threshold_hr, session_timeout_minutes)
+VALUES (?, ?, ?, ?, ?)
+''', (
+    "DR-SMITH",
+    "system",
+    "compact",
+    100,
+    15
+))
+
 # Create Indexes
 cursor.execute('CREATE INDEX IF NOT EXISTS idx_mpi_name ON patients (last_name, first_name)')
 cursor.execute('CREATE INDEX IF NOT EXISTS idx_mpi_mrn ON patients (mrn)')
