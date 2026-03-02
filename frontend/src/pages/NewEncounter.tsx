@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Beaker, FileText, ArrowLeft, CheckCircle2 } from 'lucide-react';
-import { createDigitalTwinEncounter } from '../services/api';
+import { Activity, Beaker, FileText, ArrowLeft, CheckCircle2, ShieldAlert, X } from 'lucide-react';
+import { createDigitalTwinEncounter, getAllergens } from '../services/api';
 import './NewEncounter.css';
 
 const NewEncounter: React.FC = () => {
@@ -17,6 +17,7 @@ const NewEncounter: React.FC = () => {
         gender: 'M',
         phone: '',
         address: '',
+        allergies: '',
         weightKg: '',
         heightCm: '',
 
@@ -34,6 +35,41 @@ const NewEncounter: React.FC = () => {
         potassium: '',
         bnp: ''
     });
+
+    const [allergenOptions, setAllergenOptions] = useState<string[]>([]);
+    const [allergiesList, setAllergiesList] = useState<string[]>([]);
+    const [allergenInput, setAllergenInput] = useState('');
+
+    useEffect(() => {
+        const fetchAllergens = async () => {
+            try {
+                const data = await getAllergens();
+                setAllergenOptions(data);
+            } catch (e) {
+                console.error("Failed to load allergens", e);
+            }
+        };
+        fetchAllergens();
+    }, []);
+
+    const handleAddAllergen = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = allergenInput.trim();
+            if (val && !allergiesList.includes(val)) {
+                const newList = [...allergiesList, val];
+                setAllergiesList(newList);
+                setFormData({ ...formData, allergies: newList.join(', ') });
+            }
+            setAllergenInput('');
+        }
+    };
+
+    const removeAllergen = (item: string) => {
+        const newList = allergiesList.filter(a => a !== item);
+        setAllergiesList(newList);
+        setFormData({ ...formData, allergies: newList.join(', ') });
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData({
@@ -122,6 +158,33 @@ const NewEncounter: React.FC = () => {
                             <div className="form-group">
                                 <label>ADDRESS (OPTIONAL)</label>
                                 <input type="text" name="address" value={formData.address} onChange={handleChange} />
+                            </div>
+
+                            <div className="form-group" style={{ marginTop: '16px', padding: '16px', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '4px', backgroundColor: 'rgba(239, 68, 68, 0.05)' }}>
+                                <label style={{ color: 'var(--color-accent-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <ShieldAlert size={14} /> ALLERGIES (PRESS ENTER TO ADD)
+                                </label>
+                                <input
+                                    type="text"
+                                    list="allergen-list"
+                                    value={allergenInput}
+                                    onChange={(e) => setAllergenInput(e.target.value)}
+                                    onKeyDown={handleAddAllergen}
+                                    placeholder="Type allergy and press Enter..."
+                                    style={{ borderColor: 'rgba(239, 68, 68, 0.5)' }}
+                                />
+                                <datalist id="allergen-list">
+                                    {allergenOptions.map((opt, idx) => <option key={idx} value={opt} />)}
+                                </datalist>
+                                {allergiesList.length > 0 && (
+                                    <div className="allergy-tags">
+                                        {allergiesList.map((a, i) => (
+                                            <span key={i} className="allergy-tag">
+                                                {a} <button type="button" onClick={() => removeAllergen(a)}><X size={12} /></button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

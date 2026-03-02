@@ -6,6 +6,7 @@ import json
 from pydantic import BaseModel
 from datetime import datetime
 import random
+import csv
 
 router = APIRouter()
 
@@ -13,6 +14,7 @@ router = APIRouter()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DB_PATH = os.path.join(BASE_DIR, "data", "hospital_core.db")
 CLINICAL_DB_PATH = os.path.join(BASE_DIR, "data", "clinical_patients.db")
+ALLERGENS_CSV_PATH = os.path.join(BASE_DIR, "food_ingredients_and_allergens.csv")
 
 def get_db_connection():
     if not os.path.exists(DB_PATH):
@@ -72,6 +74,7 @@ class NewEncounterModel(BaseModel):
     gender: str
     phone: str = ""
     address: str = ""
+    allergies: str = ""
     weightKg: str
     heightCm: str
     heartRate: str
@@ -123,6 +126,7 @@ async def create_new_encounter(encounter: NewEncounterModel):
             "dob": encounter.dob,
             "weight": f"{encounter.weightKg} kg",
             "height": f"{encounter.heightCm} cm",
+            "allergies": encounter.allergies,
             "code_status": "FULL CODE"
         }
 
@@ -171,6 +175,31 @@ async def create_new_encounter(encounter: NewEncounterModel):
     finally:
         h_conn.close()
         c_conn.close()
+
+# ---------------------------------------------------------
+# Allergens Data (From CSV)
+# ---------------------------------------------------------
+@router.get("/allergens")
+async def get_allergens():
+    """Returns a unique list of allergens extracted from food_ingredients_and_allergens.csv."""
+    allergens_set = set()
+    if os.path.exists(ALLERGENS_CSV_PATH):
+        try:
+            with open(ALLERGENS_CSV_PATH, mode='r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    val = row.get("Allergens", "")
+                    if val and val.lower() != "none":
+                        # Some are comma separated like "Almonds, Wheat, Dairy"
+                        parts = [p.strip() for p in val.split(",")]
+                        for p in parts:
+                            if p:
+                                allergens_set.add(p)
+        except Exception as e:
+            print(f"Error reading allergens CSV: {e}")
+    
+    # Return sorted list
+    return {"allergens": sorted(list(allergens_set))}
 
 # ---------------------------------------------------------
 # Bed Board (Encounters)

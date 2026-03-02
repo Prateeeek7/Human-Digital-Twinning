@@ -137,6 +137,11 @@ export const updateProviderPreferences = async (providerId: string, prefs: any) 
 // ==========================================
 // REAL-TIME DIGITAL TWIN INITIALIZATION
 // ==========================================
+export const getAllergens = async () => {
+    const response = await api.get(`/hospital/allergens`);
+    return response.data.allergens;
+};
+
 export const createDigitalTwinEncounter = async (encounterData: any) => {
     const response = await api.post(`/hospital/encounter`, encounterData);
     return response.data.patient_id;
