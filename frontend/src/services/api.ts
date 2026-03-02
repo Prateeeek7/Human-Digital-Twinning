@@ -142,6 +142,11 @@ export const getAllergens = async () => {
     return response.data.allergens;
 };
 
+export const searchMedicines = async (query: string) => {
+    const response = await api.get(`/hospital/medicines?q=${query}`);
+    return response.data.medicines;
+};
+
 export const createDigitalTwinEncounter = async (encounterData: any) => {
     const response = await api.post(`/hospital/encounter`, encounterData);
     return response.data.patient_id;

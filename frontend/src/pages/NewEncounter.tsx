@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Activity, Beaker, FileText, ArrowLeft, CheckCircle2, ShieldAlert, X } from 'lucide-react';
-import { createDigitalTwinEncounter, getAllergens } from '../services/api';
+import { Activity, Beaker, FileText, ArrowLeft, CheckCircle2, ShieldAlert, X, Pill, Plus } from 'lucide-react';
+import { createDigitalTwinEncounter, getAllergens, searchMedicines } from '../services/api';
 import './NewEncounter.css';
 
 const NewEncounter: React.FC = () => {
@@ -33,12 +33,17 @@ const NewEncounter: React.FC = () => {
         creatinine: '',
         sodium: '',
         potassium: '',
-        bnp: ''
+        bnp: '',
+
+        medications: [] as any[]
     });
 
     const [allergenOptions, setAllergenOptions] = useState<string[]>([]);
     const [allergiesList, setAllergiesList] = useState<string[]>([]);
     const [allergenInput, setAllergenInput] = useState('');
+
+    const [medicineOptions, setMedicineOptions] = useState<string[]>([]);
+    const [medSearchTimer, setMedSearchTimer] = useState<any>(null);
 
     useEffect(() => {
         const fetchAllergens = async () => {
@@ -69,6 +74,61 @@ const NewEncounter: React.FC = () => {
         const newList = allergiesList.filter(a => a !== item);
         setAllergiesList(newList);
         setFormData({ ...formData, allergies: newList.join(', ') });
+    };
+
+    const addMedicationRow = () => {
+        setFormData({
+            ...formData,
+            medications: [
+                ...formData.medications,
+                {
+                    name: '',
+                    dosage: '',
+                    timing: {
+                        beforeBreakfast: false,
+                        afterBreakfast: false,
+                        beforeLunch: false,
+                        afterLunch: false,
+                        beforeDinner: false,
+                        afterDinner: false
+                    }
+                }
+            ]
+        });
+    };
+
+    const handleMedNameChange = (index: number, val: string) => {
+        const newMeds = [...formData.medications];
+        newMeds[index].name = val;
+        setFormData({ ...formData, medications: newMeds });
+
+        if (medSearchTimer) clearTimeout(medSearchTimer);
+        if (val.length > 2) {
+            setMedSearchTimer(setTimeout(async () => {
+                const results = await searchMedicines(val);
+                setMedicineOptions(results);
+            }, 300));
+        } else {
+            setMedicineOptions([]);
+        }
+    };
+
+    const handleMedDosageChange = (index: number, val: string) => {
+        const newMeds = [...formData.medications];
+        newMeds[index].dosage = val;
+        setFormData({ ...formData, medications: newMeds });
+    };
+
+    const handleMedTimingChange = (index: number, timingKey: string, checked: boolean) => {
+        const newMeds = [...formData.medications];
+        newMeds[index].timing[timingKey] = checked;
+        setFormData({ ...formData, medications: newMeds });
+    };
+
+    const removeMedicationRow = (index: number) => {
+        const newMeds = [...formData.medications];
+        newMeds.splice(index, 1);
+        setFormData({ ...formData, medications: newMeds });
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -255,6 +315,77 @@ const NewEncounter: React.FC = () => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* MEDICATIONS */}
+                <div className="ne-panel border-green" style={{ marginBottom: '24px' }}>
+                    <div className="ne-panel-head text-green" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div><Pill size={16} /> CURRENT MEDICATIONS (BASELINE)</div>
+                        <button type="button" className="ne-add-btn" onClick={addMedicationRow}>
+                            <Plus size={14} /> ADD MEDICATION
+                        </button>
+                    </div>
+                    <div className="ne-panel-body" style={{ padding: '0' }}>
+                        {formData.medications.length === 0 ? (
+                            <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-text-muted)', fontSize: '13px' }}>
+                                No active medications added to profile.
+                            </div>
+                        ) : (
+                            <table className="ne-med-table">
+                                <thead>
+                                    <tr>
+                                        <th>MEDICATION NAME</th>
+                                        <th style={{ width: '150px' }}>DOSAGE</th>
+                                        <th style={{ width: '400px' }}>TIMING (CHECK ALL THAT APPLY)</th>
+                                        <th style={{ width: '60px' }}></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {formData.medications.map((med, idx) => (
+                                        <tr key={idx}>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    value={med.name}
+                                                    onChange={(e) => handleMedNameChange(idx, e.target.value)}
+                                                    placeholder="Search medicine..."
+                                                    list="medicine-list"
+                                                    required
+                                                />
+                                            </td>
+                                            <td>
+                                                <input
+                                                    type="text"
+                                                    value={med.dosage}
+                                                    onChange={(e) => handleMedDosageChange(idx, e.target.value)}
+                                                    placeholder="e.g. 50mg"
+                                                    required
+                                                />
+                                            </td>
+                                            <td>
+                                                <div className="timing-grid">
+                                                    <label><input type="checkbox" checked={med.timing.beforeBreakfast} onChange={(e) => handleMedTimingChange(idx, 'beforeBreakfast', e.target.checked)} /> Before BF</label>
+                                                    <label><input type="checkbox" checked={med.timing.afterBreakfast} onChange={(e) => handleMedTimingChange(idx, 'afterBreakfast', e.target.checked)} /> After BF</label>
+                                                    <label><input type="checkbox" checked={med.timing.beforeLunch} onChange={(e) => handleMedTimingChange(idx, 'beforeLunch', e.target.checked)} /> Before Lunch</label>
+                                                    <label><input type="checkbox" checked={med.timing.afterLunch} onChange={(e) => handleMedTimingChange(idx, 'afterLunch', e.target.checked)} /> After Lunch</label>
+                                                    <label><input type="checkbox" checked={med.timing.beforeDinner} onChange={(e) => handleMedTimingChange(idx, 'beforeDinner', e.target.checked)} /> Before Dinner</label>
+                                                    <label><input type="checkbox" checked={med.timing.afterDinner} onChange={(e) => handleMedTimingChange(idx, 'afterDinner', e.target.checked)} /> After Dinner</label>
+                                                </div>
+                                            </td>
+                                            <td style={{ textAlign: 'center' }}>
+                                                <button type="button" className="ne-remove-btn" onClick={() => removeMedicationRow(idx)}>
+                                                    <X size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                        <datalist id="medicine-list">
+                            {medicineOptions.map((opt, i) => <option key={i} value={opt} />)}
+                        </datalist>
                     </div>
                 </div>
 

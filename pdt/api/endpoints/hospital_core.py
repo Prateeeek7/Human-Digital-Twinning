@@ -15,6 +15,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.pa
 DB_PATH = os.path.join(BASE_DIR, "data", "hospital_core.db")
 CLINICAL_DB_PATH = os.path.join(BASE_DIR, "data", "clinical_patients.db")
 ALLERGENS_CSV_PATH = os.path.join(BASE_DIR, "food_ingredients_and_allergens.csv")
+MEDS_CSV_PATH = os.path.join(BASE_DIR, "A_Z_medicines_dataset_of_India.csv")
+
+# In-memory caches for fast autocomplete
+MEDICINES_CACHE = []
 
 def get_db_connection():
     if not os.path.exists(DB_PATH):
@@ -67,6 +71,21 @@ async def get_patients(search: Optional[str] = Query(None)):
 # ---------------------------------------------------------
 # New Encounter (Digital Twin Hydration)
 # ---------------------------------------------------------
+from typing import List, Optional
+
+class MedicationTiming(BaseModel):
+    beforeBreakfast: bool
+    afterBreakfast: bool
+    beforeLunch: bool
+    afterLunch: bool
+    beforeDinner: bool
+    afterDinner: bool
+
+class MedicationEntry(BaseModel):
+    name: str
+    dosage: str
+    timing: MedicationTiming
+
 class NewEncounterModel(BaseModel):
     firstName: str
     lastName: str
@@ -87,6 +106,7 @@ class NewEncounterModel(BaseModel):
     sodium: str
     potassium: str
     bnp: str
+    medications: Optional[List[MedicationEntry]] = []
 
 @router.post("/encounter")
 async def create_new_encounter(encounter: NewEncounterModel):
@@ -163,6 +183,24 @@ async def create_new_encounter(encounter: NewEncounterModel):
                 (patient_id, timestamp, name, val, unit)
             )
 
+        # Medications
+        if encounter.medications:
+            for med in encounter.medications:
+                # Convert timing dict to a comma-separated string for "frequency"
+                t_dict = med.timing.dict()
+                freq_tags = [k for k, v in t_dict.items() if v]
+                freq_str = json.dumps(freq_tags) # Store as JSON array of true timings
+                
+                # We attempt to separate dosage number from unit, but since it's free text, just put in dosage_unit for now or let dosage be 0 and put all in dosage_unit
+                c_cursor.execute('''
+                    INSERT INTO medication_history 
+                    (patient_id, medication_name, start_date, dosage, dosage_unit, frequency, source, status) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                ''', (
+                    patient_id, med.name, timestamp, 
+                    1.0, med.dosage, freq_str, "Admission Intake", "active"
+                ))
+
         h_conn.commit()
         c_conn.commit()
         
@@ -177,7 +215,7 @@ async def create_new_encounter(encounter: NewEncounterModel):
         c_conn.close()
 
 # ---------------------------------------------------------
-# Allergens Data (From CSV)
+# Allergens & Medicines Data (From CSV)
 # ---------------------------------------------------------
 @router.get("/allergens")
 async def get_allergens():
@@ -200,6 +238,43 @@ async def get_allergens():
     
     # Return sorted list
     return {"allergens": sorted(list(allergens_set))}
+
+@router.get("/medicines")
+async def get_medicines(q: str = ""):
+    """Returns a fast autocomplete list of medicines based on query using in-memory cache."""
+    global MEDICINES_CACHE
+    if not MEDICINES_CACHE:
+        # Load lazily into memory
+        if os.path.exists(MEDS_CSV_PATH):
+            try:
+                # Structure: id,name,price,Is_discontinued,manufacturer...
+                with open(MEDS_CSV_PATH, mode='r', encoding='utf-8') as f:
+                    # just read line by line instead of dictreader to avoid memory overhead of full dicts
+                    # We only care about name column (index 1)
+                    next(f) # skip header
+                    for line in f:
+                        parts = line.split(',')
+                        if len(parts) > 1:
+                            name = parts[1].strip()
+                            if name:
+                                MEDICINES_CACHE.append(name)
+            except Exception as e:
+                print(f"Error reading medicines CSV: {e}")
+                
+    if not q:
+        return {"medicines": []}
+
+    q_lower = q.lower()
+    matches = []
+    # Find up to 20 matches instantly
+    for med in MEDICINES_CACHE:
+        # Simple substring match
+        if q_lower in med.lower():
+            matches.append(med)
+            if len(matches) >= 20:
+                break
+                
+    return {"medicines": matches}
 
 # ---------------------------------------------------------
 # Bed Board (Encounters)
