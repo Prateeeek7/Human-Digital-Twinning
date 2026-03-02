@@ -161,7 +161,7 @@ textarea {
 .workspace {
   flex-grow: 1;
   display: flex;
-  overflow: hidden;
+  overflow: auto;
   background-color: var(--color-bg-root);
 }
 
