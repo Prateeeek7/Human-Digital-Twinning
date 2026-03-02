@@ -163,7 +163,7 @@
 }
 
 /* Slide-out Main Menu */
-.clinical-sidemenu {
+.app-sidebar {
     position: fixed;
     top: 28px;
     /* Below status bar */
@@ -180,11 +180,11 @@
     box-shadow: 4px 0 12px rgba(0, 0, 0, 0.1);
 }
 
-.clinical-sidemenu.open {
+.app-sidebar.open {
     transform: translateX(0);
 }
 
-.sm-header {
+.sidebar-header {
     padding: var(--spacing-md);
     font-size: var(--font-size-sm);
     font-weight: 700;
@@ -194,7 +194,7 @@
     background-color: var(--color-bg-base);
 }
 
-.sm-links {
+.sidebar-nav {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
@@ -202,7 +202,7 @@
     overflow-y: auto;
 }
 
-.sm-link {
+.sidebar-link {
     background: none;
     border: none;
     text-align: left;
@@ -214,12 +214,19 @@
     gap: var(--spacing-md);
     cursor: pointer;
     border-left: 3px solid transparent;
+    text-decoration: none;
 }
 
-.sm-link:hover {
+.sidebar-link:hover {
     background-color: var(--color-bg-base);
     color: var(--color-accent-blue);
     border-left-color: var(--color-accent-blue);
+}
+
+.sidebar-divider {
+    height: 1px;
+    background-color: var(--color-border-subtle);
+    margin: var(--spacing-sm) 0;
 }
 
 .sm-footer {
