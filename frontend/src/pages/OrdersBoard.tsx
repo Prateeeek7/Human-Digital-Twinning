@@ -120,29 +120,36 @@ const OrdersBoard: React.FC = () => {
                         ) : catalogItems.length === 0 ? (
                             <div style={{ padding: '1rem', color: 'var(--color-text-secondary)', fontFamily: 'var(--font-family-mono)' }}>No results found.</div>
                         ) : (
-                            catalogItems.map(item => (
-                                <div className="ob-order-item" key={item.id}>
-                                    <div className="ob-item-details">
-                                        <span className="ob-item-name">{item.name}</span>
-                                        <span className="ob-item-dose" style={{ whiteSpace: 'pre-line' }}>{item.description}
-                                            {item.details?.price_inr && ` | ₹${item.details.price_inr}`}
-                                            {item.details?.manufacturer && ` | ${item.details.manufacturer}`}
-                                        </span>
+                            <>
+                                {debouncedSearch.trim() === '' && catalogItems.length > 6 && (
+                                    <div style={{ padding: '0.75rem 1rem', color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-xs)', fontStyle: 'italic', borderBottom: '1px solid var(--color-border-subtle)' }}>
+                                        Showing top 6 default options. Use search to browse the full catalog.
                                     </div>
-                                    <button className="ob-add-btn" onClick={() => {
-                                        if (item.type === 'set') {
-                                            // Expand set components
-                                            item.details.components.forEach((c: any) => {
-                                                addToScratchpad(c, `[${item.name}] `);
-                                            });
-                                        } else {
-                                            addToScratchpad(item);
-                                        }
-                                    }}>
-                                        {item.type === 'set' ? '+ APPLY PATHWAY' : '+ ADD'}
-                                    </button>
-                                </div>
-                            ))
+                                )}
+                                {(debouncedSearch.trim() === '' ? catalogItems.slice(0, 6) : catalogItems).map(item => (
+                                    <div className="ob-order-item" key={item.id}>
+                                        <div className="ob-item-details">
+                                            <span className="ob-item-name">{item.name}</span>
+                                            <span className="ob-item-dose" style={{ whiteSpace: 'pre-line' }}>{item.description}
+                                                {item.details?.price_inr && ` | ₹${item.details.price_inr}`}
+                                                {item.details?.manufacturer && ` | ${item.details.manufacturer}`}
+                                            </span>
+                                        </div>
+                                        <button className="ob-add-btn" onClick={() => {
+                                            if (item.type === 'set') {
+                                                // Expand set components
+                                                item.details.components.forEach((c: any) => {
+                                                    addToScratchpad(c, `[${item.name}] `);
+                                                });
+                                            } else {
+                                                addToScratchpad(item);
+                                            }
+                                        }}>
+                                            {item.type === 'set' ? '+ APPLY PATHWAY' : '+ ADD'}
+                                        </button>
+                                    </div>
+                                ))}
+                            </>
                         )}
                     </div>
                 </div>
