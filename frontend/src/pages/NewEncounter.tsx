@@ -41,6 +41,8 @@ const NewEncounter: React.FC = () => {
     const [allergenOptions, setAllergenOptions] = useState<string[]>([]);
     const [allergiesList, setAllergiesList] = useState<string[]>([]);
     const [allergenInput, setAllergenInput] = useState('');
+    const [allergySuggestions, setAllergySuggestions] = useState<string[]>([]);
+    const [showAllergyDropdown, setShowAllergyDropdown] = useState(false);
 
     const [medicineOptions, setMedicineOptions] = useState<string[]>([]);
     const [medSearchTimer, setMedSearchTimer] = useState<any>(null);
@@ -57,6 +59,33 @@ const NewEncounter: React.FC = () => {
         fetchAllergens();
     }, []);
 
+    const handleAllergenInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setAllergenInput(val);
+
+        if (val.trim().length > 0) {
+            const filtered = allergenOptions.filter(opt =>
+                opt.toLowerCase().includes(val.toLowerCase()) &&
+                !allergiesList.includes(opt)
+            ).slice(0, 10); // Limit to top 10 suggestions
+            setAllergySuggestions(filtered);
+            setShowAllergyDropdown(true);
+        } else {
+            setAllergySuggestions([]);
+            setShowAllergyDropdown(false);
+        }
+    };
+
+    const handleSelectAllergen = (val: string) => {
+        if (!allergiesList.includes(val)) {
+            const newList = [...allergiesList, val];
+            setAllergiesList(newList);
+            setFormData({ ...formData, allergies: newList.join(', ') });
+        }
+        setAllergenInput('');
+        setShowAllergyDropdown(false);
+    };
+
     const handleAddAllergen = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -67,6 +96,7 @@ const NewEncounter: React.FC = () => {
                 setFormData({ ...formData, allergies: newList.join(', ') });
             }
             setAllergenInput('');
+            setShowAllergyDropdown(false);
         }
     };
 
@@ -224,18 +254,31 @@ const NewEncounter: React.FC = () => {
                                 <label style={{ color: 'var(--color-accent-red)', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <ShieldAlert size={14} /> ALLERGIES (PRESS ENTER TO ADD)
                                 </label>
-                                <input
-                                    type="text"
-                                    list="allergen-list"
-                                    value={allergenInput}
-                                    onChange={(e) => setAllergenInput(e.target.value)}
-                                    onKeyDown={handleAddAllergen}
-                                    placeholder="Type allergy and press Enter..."
-                                    style={{ borderColor: 'rgba(239, 68, 68, 0.5)' }}
-                                />
-                                <datalist id="allergen-list">
-                                    {allergenOptions.map((opt, idx) => <option key={idx} value={opt} />)}
-                                </datalist>
+                                <div style={{ position: 'relative' }}>
+                                    <input
+                                        type="text"
+                                        value={allergenInput}
+                                        onChange={handleAllergenInputChange}
+                                        onKeyDown={handleAddAllergen}
+                                        onFocus={() => { if (allergySuggestions.length > 0) setShowAllergyDropdown(true); }}
+                                        onBlur={() => setTimeout(() => setShowAllergyDropdown(false), 200)}
+                                        placeholder="Type allergy and press Enter..."
+                                        style={{ borderColor: 'rgba(239, 68, 68, 0.5)', width: '100%' }}
+                                    />
+                                    {showAllergyDropdown && allergySuggestions.length > 0 && (
+                                        <div className="ne-autocomplete-dropdown">
+                                            {allergySuggestions.map((opt, idx) => (
+                                                <div
+                                                    key={idx}
+                                                    className="ne-autocomplete-item"
+                                                    onClick={() => handleSelectAllergen(opt)}
+                                                >
+                                                    {opt}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
                                 {allergiesList.length > 0 && (
                                     <div className="allergy-tags">
                                         {allergiesList.map((a, i) => (

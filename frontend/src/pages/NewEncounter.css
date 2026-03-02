@@ -248,6 +248,38 @@
     color: #ef4444;
 }
 
+/* AUTOCOMPLETE DROPDOWN STYLES */
+.ne-autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background-color: var(--color-bg-root);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 50;
+}
+
+.ne-autocomplete-item {
+    padding: 8px 12px;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background-color 0.1s;
+}
+
+.ne-autocomplete-item:hover {
+    background-color: var(--color-bg-surface);
+}
+
+.ne-autocomplete-item:not(:last-child) {
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
 /* MEDICATIONS STYLES */
 .border-green {
     border-color: rgba(34, 197, 94, 0.3);
