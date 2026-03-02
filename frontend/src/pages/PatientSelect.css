@@ -66,6 +66,7 @@
     width: 100%;
     margin: 0 auto;
     padding: var(--spacing-2xl) var(--spacing-xl);
+    overflow: hidden;
 }
 
 .gt-toolbar {
