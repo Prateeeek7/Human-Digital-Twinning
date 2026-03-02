@@ -3,7 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import PatientBanner from './PatientBanner';
 import ProviderSettings from './ProviderSettings';
 import './ClinicalLayout.css';
-import { Activity, Stethoscope, Settings, Menu, Users, Bed, Inbox, Calendar, FileText, X, UserX, Monitor } from 'lucide-react';
+import { Activity, Stethoscope, Settings, Menu, Users, Bed, Inbox, Calendar, FileText, X, UserX, Monitor, LogOut } from 'lucide-react';
 
 interface ClinicalLayoutProps {
     children: React.ReactNode;
@@ -100,6 +100,10 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
                     <div className="sidebar-divider"></div>
                     <Link to={`/board/${activeId}`} className="sidebar-link" onClick={() => setIsMenuOpen(false)}>
                         <FileText size={16} /> Patient Chart ({activeId})
+                    </Link>
+                    <div className="sidebar-divider"></div>
+                    <Link to="/" className="sidebar-link text-critical" onClick={() => setIsMenuOpen(false)}>
+                        <LogOut size={16} /> Sign Out
                     </Link>
                 </nav>
                 <div className="sm-footer">
