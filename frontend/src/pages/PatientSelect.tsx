@@ -39,8 +39,7 @@ const PatientSelect: React.FC = () => {
     const handleSelectPatient = (patientId: string) => {
         // Log the initialized patient context
         console.log(`Initializing twin for patient context: ${patientId}`);
-        // In a real app we'd save this to context, here we'll just navigate
-        navigate('/board');
+        navigate(`/board/${patientId}`);
     };
 
     const handleLogout = () => {
@@ -76,7 +75,7 @@ const PatientSelect: React.FC = () => {
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </div>
-                        <button className="gt-new-btn"><UserPlus size={16} /> NEW ENCOUNTER</button>
+                        <button className="gt-new-btn" onClick={() => navigate('/new-encounter')}><UserPlus size={16} /> NEW ENCOUNTER</button>
                     </div>
                 </div>
 

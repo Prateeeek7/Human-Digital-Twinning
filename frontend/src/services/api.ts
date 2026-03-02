@@ -134,4 +134,12 @@ export const updateProviderPreferences = async (providerId: string, prefs: any) 
     return response.data;
 };
 
+// ==========================================
+// REAL-TIME DIGITAL TWIN INITIALIZATION
+// ==========================================
+export const createDigitalTwinEncounter = async (encounterData: any) => {
+    const response = await api.post(`/hospital/encounter`, encounterData);
+    return response.data.patient_id;
+};
+
 export default api;

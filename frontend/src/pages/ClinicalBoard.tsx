@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import './ClinicalBoard.css';
 import Sparkline from '../components/Sparkline';
 import BulletGraph from '../components/BulletGraph';
@@ -6,7 +7,9 @@ import { getMedicationRecommendations, getPatientHistory, getPatientSummary } fr
 import type { PredictionResponse } from '../services/api';
 
 const ClinicalBoard: React.FC = () => {
-    const [patientId] = useState('PT-001');
+    const { id } = useParams<{ id: string }>();
+    const patientId = id || 'PT-001';
+
     const [horizonDays, setHorizonDays] = useState(90);
     const [results, setResults] = useState<PredictionResponse | null>(null);
     const [isLoading, setIsLoading] = useState(false);

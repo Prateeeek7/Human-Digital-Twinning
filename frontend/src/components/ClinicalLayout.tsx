@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import PatientBanner from './PatientBanner';
 import ProviderSettings from './ProviderSettings';
 import './ClinicalLayout.css';
@@ -11,6 +11,8 @@ interface ClinicalLayoutProps {
 
 const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
     const location = useLocation();
+    const { id } = useParams<{ id: string }>();
+    const activeId = id || 'PT-001';
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -39,7 +41,7 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
                     <span className="as-brand">HF-DIGITAL TWIN <span className="as-version">v0.2</span></span>
                 </div>
                 <div className="as-nav">
-                    <Link to="/board" className={`as-nav-item ${location.pathname === '/board' ? 'active' : ''}`}>
+                    <Link to={`/board/${activeId}`} className={`as-nav-item ${location.pathname.startsWith('/board') ? 'active' : ''}`}>
                         <Activity size={14} /> Clinical Board
                     </Link>
                     <Link to="/orders" className={`as-nav-item ${location.pathname === '/orders' ? 'active' : ''}`}>
@@ -96,8 +98,8 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
                         <Calendar size={16} /> Schedule & OR
                     </Link>
                     <div className="sidebar-divider"></div>
-                    <Link to="/board" className="sidebar-link" onClick={() => setIsMenuOpen(false)}>
-                        <FileText size={16} /> Patient Chart (PT-001)
+                    <Link to={`/board/${activeId}`} className="sidebar-link" onClick={() => setIsMenuOpen(false)}>
+                        <FileText size={16} /> Patient Chart ({activeId})
                     </Link>
                 </nav>
                 <div className="sm-footer">

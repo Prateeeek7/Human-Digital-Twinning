@@ -1,0 +1,213 @@
+.ne-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-bg-root);
+    overflow-y: auto;
+}
+
+.ne-header {
+    height: 70px;
+    background-color: var(--color-bg-base);
+    border-bottom: 2px solid var(--color-border-strong);
+    display: flex;
+    align-items: center;
+    padding: 0 var(--spacing-xl);
+    gap: var(--spacing-2xl);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.ne-back-btn {
+    background: transparent;
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text-primary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ne-back-btn:hover {
+    background-color: var(--color-bg-surface);
+}
+
+.ne-title h2 {
+    font-size: var(--font-size-md);
+    color: var(--color-text-primary);
+    margin: 0;
+    letter-spacing: 0.1em;
+}
+
+.ne-title p {
+    font-family: var(--font-family-mono);
+    font-size: 10px;
+    color: var(--color-text-muted);
+    margin: 2px 0 0 0;
+}
+
+.ne-status {
+    margin-left: auto;
+}
+
+.ne-badge {
+    background-color: rgba(34, 197, 94, 0.15);
+    color: var(--color-accent-green);
+    border: 1px solid var(--color-accent-green);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    font-family: var(--font-family-mono);
+    font-weight: 700;
+}
+
+.ne-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: var(--spacing-2xl) var(--spacing-xl);
+}
+
+.ne-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.ne-right-col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+}
+
+.ne-panel {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.border-red {
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.border-blue {
+    border-color: rgba(59, 130, 246, 0.3);
+}
+
+.ne-panel-head {
+    background-color: var(--color-bg-base);
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border-subtle);
+    font-size: var(--font-size-xs);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--color-text-secondary);
+}
+
+.text-red {
+    color: var(--color-accent-red);
+}
+
+.text-blue {
+    color: var(--color-accent-blue);
+}
+
+.ne-panel-body {
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
+.form-row {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+.flex-1 {
+    flex: 1;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.form-group label {
+    font-family: var(--font-family-mono);
+    font-size: 10px;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select {
+    background-color: var(--color-bg-base);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-text-primary);
+    padding: var(--spacing-sm);
+    border-radius: var(--radius-none);
+    font-family: var(--font-family-sans);
+    font-size: var(--font-size-sm);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--color-accent-blue);
+}
+
+.ne-footer {
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-accent-green);
+    padding: var(--spacing-xl);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    margin-bottom: var(--spacing-2xl);
+}
+
+.ne-submit-btn {
+    background-color: var(--color-accent-green);
+    color: var(--color-bg-base);
+    border: none;
+    padding: var(--spacing-md) var(--spacing-2xl);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-md);
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    transition: background-color 0.2s;
+}
+
+.ne-submit-btn:hover:not(:disabled) {
+    background-color: #22c55e;
+}
+
+.ne-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.ne-footer-note {
+    font-family: var(--font-family-mono);
+    font-size: 10px;
+    color: var(--color-text-muted);
+    margin: var(--spacing-md) 0 0 0;
+}
