@@ -7,20 +7,28 @@ import BedBoard from './pages/BedBoard';
 import ResultsInbox from './pages/ResultsInbox';
 import ScheduleBoard from './pages/ScheduleBoard';
 
+import LoginLanding from './pages/LoginLanding';
+import PatientSelect from './pages/PatientSelect';
+
 function App() {
   return (
     <BrowserRouter>
-      <ClinicalLayout>
-        <Routes>
-          <Route path="/" element={<Navigate to="/board" replace />} />
-          <Route path="/board" element={<ClinicalBoard />} />
-          <Route path="/orders" element={<OrdersBoard />} />
-          <Route path="/mpi" element={<MasterPatientIndex />} />
-          <Route path="/bedboard" element={<BedBoard />} />
-          <Route path="/results" element={<ResultsInbox />} />
-          <Route path="/schedule" element={<ScheduleBoard />} />
-        </Routes>
-      </ClinicalLayout>
+      <Routes>
+        {/* Entry & Gateway Routes (No Clinical Layout Sidebar) */}
+        <Route path="/" element={<LoginLanding />} />
+        <Route path="/patients" element={<PatientSelect />} />
+
+        {/* Protected Clinical Working Routes (Wrapped in Hospital Shell) */}
+        <Route path="/board" element={<ClinicalLayout><ClinicalBoard /></ClinicalLayout>} />
+        <Route path="/orders" element={<ClinicalLayout><OrdersBoard /></ClinicalLayout>} />
+        <Route path="/mpi" element={<ClinicalLayout><MasterPatientIndex /></ClinicalLayout>} />
+        <Route path="/bedboard" element={<ClinicalLayout><BedBoard /></ClinicalLayout>} />
+        <Route path="/results" element={<ClinicalLayout><ResultsInbox /></ClinicalLayout>} />
+        <Route path="/schedule" element={<ClinicalLayout><ScheduleBoard /></ClinicalLayout>} />
+
+        {/* Catch-all fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }
