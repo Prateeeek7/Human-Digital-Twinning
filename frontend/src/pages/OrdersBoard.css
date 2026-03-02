@@ -1,19 +1,20 @@
 .orders-board {
     display: flex;
+    justify-content: center;
     gap: 1px;
     height: 100%;
     background-color: var(--color-border-subtle);
 }
 
 .ob-pane-left {
-    flex: 0 0 320px;
+    flex: 0 0 280px;
     background-color: var(--color-bg-surface);
     display: flex;
     flex-direction: column;
 }
 
 .ob-pane-main {
-    flex: 1;
+    flex: 0 1 900px;
     background-color: var(--color-bg-surface);
     display: flex;
     flex-direction: column;
