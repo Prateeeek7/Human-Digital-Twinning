@@ -1,0 +1,191 @@
+:root {
+  /* Medical Color Palette */
+  --color-primary: #0f5959;
+  /* Surgical Teal - Authoritative, clinical */
+  --color-secondary: #374151;
+  /* Muted Graphite - Technical */
+  --color-background: #f0f2f5;
+  /* Cool Neutral - High contrast, low strain */
+  --color-surface: #ffffff;
+  /* Crisp White container backgrounds */
+  --color-text-primary: #111827;
+  /* Heavy Charcoal - Maximum readability */
+  --color-accent: #0b6623;
+  /* Deep Green - "Healthy/Stable" indicator */
+  --color-alert: #d32f2f;
+  /* Controlled Red - Critical risk/anomaly */
+  --color-border: #cbd5e1;
+  /* Slate border for grid structures */
+
+  /* Legacy/Compatibility Colors */
+  --color-base: var(--color-primary);
+  --color-highlight: var(--color-secondary);
+  --color-positive: var(--color-accent);
+  --color-neutral: #9ca3af;
+  --color-negative: var(--color-alert);
+
+  /* Derived Colors */
+  --color-base-light: #167a7a;
+  --color-base-dark: #083b3b;
+  --color-highlight-light: #4b5563;
+  --color-highlight-dark: #1f2937;
+
+  /* Text Colors */
+  --color-text-secondary: #4b5563;
+  --color-text-muted: #6b7280;
+  --color-text-on-primary: #ffffff;
+  --color-text-on-secondary: #ffffff;
+
+  /* Background */
+  --color-bg-primary: var(--color-background);
+  --color-bg-secondary: #e2e8f0;
+  --color-bg-card: var(--color-surface);
+
+  /* Clinical Spacing (Dense Grid) */
+  --spacing-xs: 0.125rem;
+  --spacing-sm: 0.25rem;
+  --spacing-md: 0.5rem;
+  /* Reduced from 0.75rem */
+  --spacing-lg: 0.75rem;
+  /* Reduced from 1rem */
+  --spacing-xl: 1rem;
+  /* Reduced from 1.5rem */
+  --spacing-2xl: 1.5rem;
+  /* Reduced from 2rem */
+
+  /* Engineered Borders & Radii */
+  --border-width: 1px;
+  --border-width-heavy: 2px;
+  --radius-sm: 0px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  /* Max allowed for clinical look */
+
+  /* Removed Float Shadows - using subtle elevation or simple borders */
+  --shadow-sm: none;
+  --shadow-md: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* Extremely subtle */
+  --shadow-lg: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Roboto', 'IBM Plex Sans', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', 'Helvetica Neue', sans-serif;
+  font-variant-numeric: tabular-nums;
+  /* Critical for medical data alignment */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  /* Tighter line height for density */
+  font-size: 0.875rem;
+  /* Make default text 14px instead of 16px */
+  min-height: 100vh;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-highlight);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-highlight-light);
+}
+
+/* Utility Classes */
+.container {
+  max-width: 98%;
+  /* Expand virtually full screen */
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-1 {
+  margin-top: var(--spacing-sm);
+}
+
+.mt-2 {
+  margin-top: var(--spacing-md);
+}
+
+.mt-3 {
+  margin-top: var(--spacing-lg);
+}
+
+.mt-4 {
+  margin-top: var(--spacing-xl);
+}
+
+.mb-1 {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-2 {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-3 {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mb-4 {
+  margin-bottom: var(--spacing-xl);
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.gap-2 {
+  gap: var(--spacing-md);
+}
+
+.gap-4 {
+  gap: var(--spacing-xl);
+}

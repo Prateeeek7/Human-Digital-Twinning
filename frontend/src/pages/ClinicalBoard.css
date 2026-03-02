@@ -1,0 +1,182 @@
+.clinical-board {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* 3 Pane Split Layout */
+.cb-pane-left {
+    flex: 0 0 320px;
+    background-color: var(--color-bg-base);
+    border-right: 1px solid var(--color-border-strong);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.cb-pane-center {
+    flex: 1 1 auto;
+    background-color: var(--color-bg-surface);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.cb-pane-right {
+    flex: 0 0 400px;
+    background-color: var(--color-bg-base);
+    border-left: 1px solid var(--color-border-strong);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Pane Headers */
+.pane-header {
+    position: sticky;
+    top: 0;
+    background-color: var(--color-bg-hover);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 2px solid var(--color-border-strong);
+    font-size: var(--font-size-md);
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+}
+
+.pane-subheader {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    font-weight: 500;
+}
+
+/* DataGrid System */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-bottom: 1px solid var(--color-border-subtle);
+    text-align: left;
+}
+
+.data-table th {
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    background-color: var(--color-bg-surface);
+    font-weight: 600;
+    position: sticky;
+    top: 36px;
+    /* Below pane header */
+    z-index: 9;
+}
+
+.data-table td {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-primary);
+    vertical-align: middle;
+}
+
+tr.data-row-critical td {
+    background-color: rgba(220, 38, 38, 0.05);
+    /* Very light critical tint */
+    border-bottom-color: rgba(220, 38, 38, 0.2);
+}
+
+.value-highlight {
+    font-weight: 700;
+}
+
+.value-critical {
+    color: var(--color-accent-red);
+    font-weight: 700;
+}
+
+/* Forms & Inputs */
+.form-group {
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.form-label {
+    display: block;
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--spacing-xs);
+    text-transform: uppercase;
+}
+
+.form-input {
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border: 1px solid var(--color-border-strong);
+    background-color: var(--color-bg-base);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    transition: border-color 0.1s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-accent-blue);
+    box-shadow: inset 0 0 0 1px var(--color-accent-blue);
+    /* Crisp focus ring */
+}
+
+/* Mechanical Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.1s;
+}
+
+.btn-primary {
+    background-color: var(--color-text-primary);
+    color: var(--color-bg-base);
+    border-color: var(--color-text-primary);
+}
+
+.btn-primary:hover {
+    background-color: var(--color-accent-blue);
+    border-color: var(--color-accent-blue);
+}
+
+.btn-secondary {
+    background-color: var(--color-bg-surface);
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-bg-hover);
+}
+
+.btn-danger {
+    background-color: var(--color-accent-red);
+    color: var(--color-bg-base);
+    border-color: var(--color-accent-red);
+}
+
+.btn-danger:hover {
+    filter: brightness(0.9);
+}

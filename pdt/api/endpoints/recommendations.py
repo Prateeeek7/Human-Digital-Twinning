@@ -62,6 +62,15 @@ class PatientInfo(BaseModel):
     anaemia: Optional[bool] = None
     smoking: Optional[bool] = None
     
+    # New Hospital-Grade fields
+    nt_pro_bnp: Optional[float] = None
+    troponin: Optional[float] = None
+    nyha_class: Optional[str] = None
+    atrial_fibrillation: Optional[bool] = None
+    copd: Optional[bool] = None
+    ckd: Optional[bool] = None
+    anemia: Optional[bool] = None
+    
     # Additional fields
     class Config:
         extra = "allow"  # Allow additional fields

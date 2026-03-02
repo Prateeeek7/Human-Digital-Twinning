@@ -1,0 +1,31 @@
+.card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-sm);
+  /* Use 0px for maximum clinical feel */
+  padding: var(--spacing-md);
+  /* Condense internal padding */
+  border: var(--border-width-heavy) solid var(--color-border);
+  box-shadow: none;
+  /* Removed heavy SaaS shadows */
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: var(--color-primary);
+  /* Surgical Teal on hover */
+  /* No hover shadow to maintain flat engineered aesthetic */
+}
+
+.card-title {
+  font-size: 1rem;
+  /* Condensed from 1.25rem */
+  font-weight: 600;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-secondary);
+  padding-bottom: var(--spacing-sm);
+}
+
+.card-content {
+  color: var(--color-text-primary);
+}

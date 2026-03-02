@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from pdt.models.treatment.digital_twin_recommender import DigitalTwinRecommender
 from pdt.models.treatment.personalized_recommender import PersonalizedMedicationRecommender
+from pdt.models.prediction.heart_failure_classifier import HeartFailureClassifier
 import joblib
 
 router = APIRouter(prefix="/digital-twin", tags=["digital-twin"])
@@ -20,6 +21,7 @@ router = APIRouter(prefix="/digital-twin", tags=["digital-twin"])
 # Load models (lazy loading)
 _digital_twin_recommender = None
 _base_recommender = None
+_heart_failure_classifier = None
 
 
 def get_digital_twin_recommender() -> DigitalTwinRecommender:
@@ -42,6 +44,18 @@ def get_digital_twin_recommender() -> DigitalTwinRecommender:
         _digital_twin_recommender = DigitalTwinRecommender(base_recommender=_base_recommender)
     
     return _digital_twin_recommender
+
+def get_heart_failure_classifier() -> HeartFailureClassifier:
+    """Get or load the extra trees heart failure classifier."""
+    global _heart_failure_classifier
+    
+    if _heart_failure_classifier is None:
+        model_path = Path("models/heart_failure_classifier.pkl")
+        _heart_failure_classifier = HeartFailureClassifier()
+        if model_path.exists():
+            _heart_failure_classifier.load(str(model_path))
+            
+    return _heart_failure_classifier
 
 
 # Request/Response models
@@ -72,6 +86,23 @@ class PatientInfo(BaseModel):
     anaemia: Optional[bool] = None
     smoking: Optional[bool] = None
     
+    # New Hospital-Grade fields
+    nt_pro_bnp: Optional[float] = None
+    troponin: Optional[float] = None
+    nyha_class: Optional[str] = None
+    atrial_fibrillation: Optional[bool] = None
+    copd: Optional[bool] = None
+    ckd: Optional[bool] = None
+    anemia: Optional[bool] = None
+    
+    # ML Model (ExtraTrees) Specific fields
+    max_hr: Optional[float] = None
+    oldpeak: Optional[float] = None
+    st_slope: Optional[str] = None
+    chest_pain_type: Optional[str] = None
+    exercise_angina: Optional[bool] = None
+    resting_ecg: Optional[str] = None
+
     class Config:
         extra = "allow"
 
@@ -152,6 +183,26 @@ async def get_digital_twin_recommendations(request: DigitalTwinRecommendationReq
     
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error generating recommendations: {str(e)}")
+
+
+@router.post("/predict-heart-failure")
+async def predict_heart_failure_risk(request: InitializePatientRequest):
+    """
+    Get heart failure risk prediction using the ExtraTreesClassifier.
+    Requires ST_Slope, Oldpeak, MaxHR, Age, RestingBP, Cholesterol, etc.
+    """
+    try:
+        classifier = get_heart_failure_classifier()
+        if not classifier.is_trained:
+            raise HTTPException(status_code=503, detail="Heart Failure model not found.")
+            
+        patient_dict = request.patient_info.dict(exclude_none=True)
+        prediction = classifier.predict_risk(patient_dict)
+        
+        return prediction
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error running prediction: {str(e)}")
 
 
 @router.post("/update-outcome")

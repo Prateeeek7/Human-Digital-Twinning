@@ -1,0 +1,49 @@
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.input-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.input {
+  padding: var(--spacing-sm) var(--spacing-sm);
+  /* Even tighter horizontal padding */
+  border: var(--border-width-heavy) solid var(--color-border);
+  /* Thicker, clear border */
+  border-radius: var(--radius-sm);
+  /* Strictly flat corner */
+  /* Sharp or slight curve */
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  font-size: 0.875rem;
+  /* Down from 1rem */
+  font-family: inherit;
+  /* Inherit tabular-nums and specific font */
+  transition: border-color 0.15s ease-in-out;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  /* Deep Teal */
+  /* Removed glow/spread drop shadow */
+}
+
+.input-error {
+  border-color: var(--color-alert);
+}
+
+.input-error:focus {
+  /* Strict error outline, no glow */
+  outline: 1px solid var(--color-alert);
+}
+
+.input-error-text {
+  color: var(--color-alert);
+  font-size: 0.875rem;
+}

@@ -1,0 +1,72 @@
+.btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  /* Much tighter */
+  border: none;
+  border-radius: var(--radius-sm);
+  /* Sharp boundaries */
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  font-size: 0.875rem;
+  /* Tighter font for global grid */
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  border: var(--border-width-heavy) solid var(--color-primary);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-surface);
+  /* Use a secondary high-contrast border instead of a shadow */
+  border-color: var(--color-secondary);
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: var(--border-width-heavy) solid var(--color-border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #d8d8d8;
+}
+
+.btn-danger {
+  background: var(--color-alert);
+  color: #ffffff;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #c9302c;
+}
+
+.btn-success {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #4cae4c;
+}
+
+.btn-sm {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-size: 1.125rem;
+}

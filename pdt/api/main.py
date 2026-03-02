@@ -10,7 +10,7 @@ import torch
 import numpy as np
 
 # Import recommendation endpoints
-from pdt.api.endpoints import recommendations, documents, digital_twin, temporal_data, medications
+from pdt.api.endpoints import recommendations, documents, digital_twin, temporal_data, medications, order_catalog, hospital_core
 
 app = FastAPI(
     title="Patient Digital Twin API",
@@ -33,6 +33,8 @@ app.include_router(documents.router)
 app.include_router(digital_twin.router)
 app.include_router(temporal_data.router)
 app.include_router(medications.router)
+app.include_router(order_catalog.router, prefix="/order-catalog", tags=["order-catalog"])
+app.include_router(hospital_core.router, prefix="/hospital", tags=["hospital-core"])
 
 
 class PredictionRequest(BaseModel):

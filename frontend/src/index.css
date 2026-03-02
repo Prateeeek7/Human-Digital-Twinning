@@ -1,147 +1,185 @@
 :root {
-  /* Medical Color Palette */
-  --color-primary: #0B3C5D;        /* Deep Medical Blue - Trust, science, hospitals */
-  --color-secondary: #1FA2A6;      /* Teal Cyan - Health + data flow */
-  --color-background: #F4F7F9;     /* Soft Off-White - Low eye strain */
-  --color-text-primary: #2E2E2E;   /* Charcoal - Serious, readable */
-  --color-accent: #5CB85C;         /* Muted Green - "Healthy state" indicator */
-  --color-alert: #D9534F;          /* Soft Red - Risk / anomaly */
-  
-  /* Legacy/Compatibility Colors */
-  --color-base: var(--color-primary);
-  --color-highlight: var(--color-secondary);
-  --color-positive: var(--color-accent);
-  --color-neutral: #ADB5BD;
-  --color-negative: var(--color-alert);
-  
-  /* Derived Colors */
-  --color-base-light: #0f4d6d;
-  --color-base-dark: #072836;
-  --color-highlight-light: #2bb3b8;
-  --color-highlight-dark: #187d81;
-  
-  /* Text Colors */
-  --color-text-secondary: #5a5a5a;
-  --color-text-muted: #8a8a8a;
-  --color-text-on-primary: #ffffff;
-  --color-text-on-secondary: #ffffff;
-  
-  /* Background */
-  --color-bg-primary: var(--color-background);
-  --color-bg-secondary: #ffffff;
-  --color-bg-card: #ffffff;
-  
-  /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
-  --spacing-2xl: 3rem;
-  
-  /* Border Radius */
-  --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  
-  /* Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+  /* =========================================================================
+     CLINICAL CONTROL ROOM THEME (Surgical Light Mode - High Density)
+     ========================================================================= */
+
+  /* Palette - Precision & Safety 
+     - No soft pastels or gradients.
+     - Pure functional grays, clinical teals, and strict alert reds.
+  */
+  --color-bg-root: #f0f2f5;
+  --color-bg-base: #ffffff;
+  --color-bg-surface: #f8fafc;
+  --color-bg-hover: #e2e8f0;
+  --color-bg-active: #cbd5e1;
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+
+  --color-border-subtle: #e2e8f0;
+  --color-border-strong: #94a3b8;
+  --color-border-focus: #3b82f6;
+
+  /* Accent Colors */
+  --color-accent-teal: #0d9488;
+  /* Clinical Teal */
+  --color-accent-blue: #2563eb;
+  /* Action Blue */
+  --color-accent-red: #dc2626;
+  /* Critical Alert */
+  --color-accent-orange: #ea580c;
+  /* Warning */
+  --color-accent-green: #16a34a;
+  /* Normal / Safe */
+
+  /* Spacing - Extreme Density
+     We abandon standard web padding (typically 16px/24px)
+     for much tighter, strictly grid-locked constraints. */
+  --spacing-2xs: 2px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+
+  /* Typography
+     Strictly tabular for medical data alignment. */
+  --font-family-base: "Inter", "Roboto Mono", "Segoe UI", system-ui, sans-serif;
+  --font-size-xs: 0.70rem;
+  /* 11px - micro labels */
+  --font-size-sm: 0.75rem;
+  /* 12px - secondary data */
+  --font-size-md: 0.8125rem;
+  /* 13px - base UI text */
+  --font-size-lg: 0.875rem;
+  /* 14px - primary distinct */
+  --font-size-xl: 1rem;
+  /* 16px - headers only */
+
+  --line-height-tight: 1.1;
+  --line-height-base: 1.4;
+
+  /* Borders & Shadows - Engineered rigidity
+     No soft curves or diffuse drop shadows. Sharp edges. */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  /* Absolute maximum radius */
+
+  --shadow-none: none;
+  --shadow-clinical: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+/* Base Styles */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-md);
+  font-variant-numeric: tabular-nums lining-nums;
+  line-height: var(--line-height-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-root);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--color-bg-primary);
-  color: var(--color-text-primary);
-  line-height: 1.6;
-  min-height: 100vh;
+  margin: 0;
+  overflow-y: scroll;
+  /* Keep scrollbar to prevent jumping */
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* Remove default link styling */
+a {
+  color: var(--color-accent-blue);
+  text-decoration: none;
 }
 
-#root {
-  min-height: 100vh;
-  width: 100%;
+a:hover {
+  text-decoration: underline;
 }
 
-/* Scrollbar Styling */
+/* Structural Primatives */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: var(--font-size-xl);
+}
+
+h2 {
+  font-size: var(--font-size-lg);
+}
+
+h3 {
+  font-size: var(--font-size-md);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+input,
+button,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+  margin: 0;
+}
+
+/* Utility Layouts for a 100vw workspace */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.patient-banner {
+  flex-shrink: 0;
+  height: 48px;
+  background-color: var(--color-bg-base);
+  border-bottom: 2px solid var(--color-border-strong);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--spacing-md);
+  gap: var(--spacing-xl);
+}
+
+.workspace {
+  flex-grow: 1;
+  display: flex;
+  overflow: hidden;
+  background-color: var(--color-bg-root);
+}
+
+/* Scrollbar styling for clinical precision */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-root);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-highlight);
-  border-radius: 4px;
+  background: var(--color-border-strong);
+  border-radius: var(--radius-none);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-highlight-light);
+  background: var(--color-text-muted);
 }
-
-/* Utility Classes */
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-lg);
-  width: 100%;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.mt-1 { margin-top: var(--spacing-sm); }
-.mt-2 { margin-top: var(--spacing-md); }
-.mt-3 { margin-top: var(--spacing-lg); }
-.mt-4 { margin-top: var(--spacing-xl); }
-
-.mb-1 { margin-bottom: var(--spacing-sm); }
-.mb-2 { margin-bottom: var(--spacing-md); }
-.mb-3 { margin-bottom: var(--spacing-lg); }
-.mb-4 { margin-bottom: var(--spacing-xl); }
-
-.flex {
-  display: flex;
-}
-
-.flex-col {
-  flex-direction: column;
-}
-
-.items-center {
-  align-items: center;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.gap-2 {
-  gap: var(--spacing-md);
-}
-
-.gap-4 {
-  gap: var(--spacing-xl);
-}
-
