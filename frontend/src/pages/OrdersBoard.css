@@ -1,6 +1,5 @@
 .orders-board {
     display: flex;
-    justify-content: center;
     gap: 1px;
     height: 100%;
     background-color: var(--color-border-subtle);
@@ -14,7 +13,7 @@
 }
 
 .ob-pane-main {
-    flex: 0 1 900px;
+    flex: 1;
     background-color: var(--color-bg-surface);
     display: flex;
     flex-direction: column;
