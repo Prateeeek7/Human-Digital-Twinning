@@ -46,6 +46,7 @@ const NewEncounter: React.FC = () => {
 
     const [medicineOptions, setMedicineOptions] = useState<string[]>([]);
     const [medSearchTimer, setMedSearchTimer] = useState<any>(null);
+    const [activeMedDropdown, setActiveMedDropdown] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchAllergens = async () => {
@@ -137,10 +138,23 @@ const NewEncounter: React.FC = () => {
             setMedSearchTimer(setTimeout(async () => {
                 const results = await searchMedicines(val);
                 setMedicineOptions(results);
+                if (results.length > 0) {
+                    setActiveMedDropdown(index);
+                } else {
+                    setActiveMedDropdown(null);
+                }
             }, 300));
         } else {
             setMedicineOptions([]);
+            setActiveMedDropdown(null);
         }
+    };
+
+    const handleSelectMedicine = (index: number, medName: string) => {
+        const newMeds = [...formData.medications];
+        newMeds[index].name = medName;
+        setFormData({ ...formData, medications: newMeds });
+        setActiveMedDropdown(null);
     };
 
     const handleMedDosageChange = (index: number, val: string) => {
@@ -387,15 +401,29 @@ const NewEncounter: React.FC = () => {
                                 <tbody>
                                     {formData.medications.map((med, idx) => (
                                         <tr key={idx}>
-                                            <td>
+                                            <td style={{ position: 'relative' }}>
                                                 <input
                                                     type="text"
                                                     value={med.name}
                                                     onChange={(e) => handleMedNameChange(idx, e.target.value)}
+                                                    onFocus={() => { if (medicineOptions.length > 0 && med.name.length > 2) setActiveMedDropdown(idx); }}
+                                                    onBlur={() => setTimeout(() => setActiveMedDropdown(null), 200)}
                                                     placeholder="Search medicine..."
-                                                    list="medicine-list"
                                                     required
                                                 />
+                                                {activeMedDropdown === idx && medicineOptions.length > 0 && (
+                                                    <div className="ne-autocomplete-dropdown" style={{ width: '100%', top: '100%' }}>
+                                                        {medicineOptions.map((opt, i) => (
+                                                            <div
+                                                                key={i}
+                                                                className="ne-autocomplete-item"
+                                                                onClick={() => handleSelectMedicine(idx, opt)}
+                                                            >
+                                                                {opt}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </td>
                                             <td>
                                                 <input
@@ -426,9 +454,6 @@ const NewEncounter: React.FC = () => {
                                 </tbody>
                             </table>
                         )}
-                        <datalist id="medicine-list">
-                            {medicineOptions.map((opt, i) => <option key={i} value={opt} />)}
-                        </datalist>
                     </div>
                 </div>
 

@@ -42,6 +42,8 @@
   --spacing-md: 12px;
   --spacing-lg: 16px;
   --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-3xl: 48px;
 
   /* Typography
      Strictly tabular for medical data alignment. */
