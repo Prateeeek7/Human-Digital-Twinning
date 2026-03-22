@@ -8,7 +8,7 @@
 }
 
 .ne-header {
-    height: 70px;
+    height: 105px;
     background-color: var(--color-bg-base);
     border-bottom: 2px solid var(--color-border-strong);
     display: flex;
