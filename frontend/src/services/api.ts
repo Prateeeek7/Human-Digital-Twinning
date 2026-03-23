@@ -139,6 +139,19 @@ export const updateProviderPreferences = async (providerId: string, prefs: any) 
 // ==========================================
 // REAL-TIME DIGITAL TWIN INITIALIZATION
 // ==========================================
+
+// Document OCR (Lab Reports / Prescriptions)
+export const uploadLabReport = async (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await api.post('/documents/upload-lab-report', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    });
+    return response.data;
+};
+// ==========================================
 export const getAllergens = async () => {
     const response = await api.get(`/hospital/allergens`);
     return response.data.allergens;

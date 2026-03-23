@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import './ClinicalBoard.css';
 import Sparkline from '../components/Sparkline';
 import BulletGraph from '../components/BulletGraph';
-import { getMedicationRecommendations, getPatientHistory, getPatientSummary } from '../services/api';
+import { getMedicationRecommendations, getPatientHistory, getPatientSummary, uploadLabReport } from '../services/api';
 import type { PredictionResponse } from '../services/api';
+
+
 
 const ClinicalBoard: React.FC = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,6 +15,8 @@ const ClinicalBoard: React.FC = () => {
     const [horizonDays, setHorizonDays] = useState(90);
     const [results, setResults] = useState<PredictionResponse | null>(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Data State
     const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -112,10 +116,63 @@ const ClinicalBoard: React.FC = () => {
                 time_horizon_days: horizonDays
             });
             setResults(res);
-        } catch (e) {
-            console.error("Failed to run AI", e);
+        } catch (err) {
+            console.error(err);
+            alert("Digital Twin AI failed to compile scenario.");
         } finally {
             setIsLoading(false);
+        }
+    };
+
+    const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        try {
+            const result = await uploadLabReport(file);
+            if (result.status === 'success') {
+                const labs = result.lab_values || {};
+                
+                // Map the OCR labs to the frontend vitals tracker
+                const updated = { ...currentVitals };
+                if (labs['heart_rate'] && labs['heart_rate'].value) updated.hr = labs['heart_rate'].value.toString();
+                if (labs['systolic_bp'] && labs['systolic_bp'].value) updated.bp = labs['systolic_bp'].value.toString();
+                if (labs['ejection_fraction'] && labs['ejection_fraction'].value) updated.ef = (labs['ejection_fraction'].value * 100).toString(); // it's 0.60
+                if (labs['creatinine'] && labs['creatinine'].value) updated.cr = labs['creatinine'].value.toString();
+                if (labs['sodium'] && labs['sodium'].value) updated.na = labs['sodium'].value.toString();
+                if (labs['cholesterol'] && labs['cholesterol'].value) updated.chol = labs['cholesterol'].value.toString();
+                if (labs['hemoglobin'] && labs['hemoglobin'].value) updated.hgb = labs['hemoglobin'].value.toString();
+                
+                setCurrentVitals(updated);
+
+                // Generate and download a CSV sheet format
+                const csvRows = ['Parameter,Value,Unit,Source'];
+                Object.entries(labs).forEach(([key, val]: [string, any]) => {
+                    csvRows.push(`"${key}","${val.value || ''}","${val.unit || ''}","OCR Extracted Lab Report"`);
+                });
+                
+                const csvData = csvRows.join('\n');
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.setAttribute('hidden', '');
+                a.setAttribute('href', url);
+                a.setAttribute('download', `${patientId}_twin_ingest_${new Date().toISOString().split('T')[0]}.csv`);
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                alert("OCR parsing complete. Tabular sheet downloaded and values injected into Digital Twin context.");
+            } else {
+                alert("Failed to parse document.");
+            }
+        } catch (e) {
+            console.error(e);
+            alert("Error processing document via OCR.");
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
         }
     };
 
@@ -290,8 +347,16 @@ const ClinicalBoard: React.FC = () => {
                     )}
 
                     <h3 style={{ marginTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-sm)' }}>Document Parse</h3>
-                    <div style={{ border: '1px solid var(--color-border-subtle)', padding: 'var(--spacing-md)', textAlign: 'center', backgroundColor: 'var(--color-bg-surface)', cursor: 'pointer' }}>
-                        <span className="pane-subheader">Click to inject Prescription/Lab OCR</span>
+                    <input type="file" ref={fileInputRef} style={{ display: 'none' }} accept=".pdf,image/*" onChange={handleFileUpload} />
+                    <div 
+                        onClick={() => fileInputRef.current?.click()}
+                        style={{ border: '1px solid var(--color-border-subtle)', padding: 'var(--spacing-md)', textAlign: 'center', backgroundColor: 'var(--color-bg-surface)', cursor: 'pointer', transition: 'background-color 0.2s', opacity: isUploading ? 0.7 : 1 }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-hover)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--color-bg-surface)'}
+                    >
+                        <span className="pane-subheader">
+                            {isUploading ? 'OCR ENGINE PARSING DATA...' : 'Click to inject Prescription/Lab OCR'}
+                        </span>
                     </div>
                 </div>
             </div>
