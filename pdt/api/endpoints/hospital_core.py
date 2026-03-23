@@ -242,6 +242,82 @@ async def create_new_encounter(encounter: NewEncounterModel):
 # ---------------------------------------------------------
 # Allergens & Medicines Data (From CSV)
 # ---------------------------------------------------------
+
+# ---------------------------------------------------------
+# OCR Lab Ingest for an existing Patient Twin
+# ---------------------------------------------------------
+from fastapi import UploadFile, File
+
+@router.post("/patients/{patient_id}/ingest-labs")
+async def ingest_labs_from_document(patient_id: str, file: UploadFile = File(...)):
+    """
+    Upload a lab report / prescription image or PDF for an existing patient.
+    Runs OCR, extracts lab values, writes them to the patient's timeline in the
+    clinical database, and returns the structured lab data to the frontend.
+    """
+    import sys
+    from pathlib import Path as PPath
+    sys.path.insert(0, str(PPath(__file__).parent.parent.parent))
+
+    from pdt.utils.ocr import DocumentOCR
+    from pdt.utils.lab_report_parser import LabReportParser
+
+    try:
+        file_bytes = await file.read()
+        doc_type = 'pdf' if (file.content_type and 'pdf' in file.content_type.lower()) or \
+                           (file.filename and file.filename.lower().endswith('.pdf')) else 'image'
+
+        # Run OCR
+        ocr = DocumentOCR(use_easyocr=False)
+        raw_text = ocr.extract_text_from_bytes(file_bytes, doc_type)
+
+        # Parse lab values
+        parser = LabReportParser()
+        parsed = parser.parse(raw_text)
+        lab_values = parsed.get('lab_values', {})
+
+        if not lab_values:
+            return {"status": "no_values", "message": "OCR ran but could not extract structured lab values.", "lab_values": {}}
+
+        # Write to clinical DB under this patient's timeline
+        timestamp = datetime.now().isoformat()
+        c_conn = get_clinical_db_connection()
+        c_cursor = c_conn.cursor()
+        try:
+            for lab_name, info in lab_values.items():
+                value = info.get('value')
+                unit = info.get('unit') or ''
+                if value is None:
+                    continue
+                c_cursor.execute(
+                    "INSERT INTO lab_values (patient_id, timestamp, lab_name, value, unit) VALUES (?, ?, ?, ?, ?)",
+                    (patient_id, timestamp, lab_name.replace('_', ' ').title(), float(value), unit)
+                )
+            c_conn.commit()
+        finally:
+            c_conn.close()
+
+        # Build clean payload for the frontend
+        structured = {
+            lab_name: {"value": info.get('value'), "unit": info.get('unit') or ''}
+            for lab_name, info in lab_values.items()
+            if info.get('value') is not None
+        }
+
+        return {
+            "status": "success",
+            "patient_id": patient_id,
+            "file_name": file.filename,
+            "timestamp": timestamp,
+            "lab_count": len(structured),
+            "lab_values": structured,
+        }
+
+    except Exception as e:
+        print(f"OCR ingest error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @router.get("/allergens")
 async def get_allergens():
     """Returns a unique list of allergens extracted from food_ingredients_and_allergens.csv."""

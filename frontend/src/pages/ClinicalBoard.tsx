@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import './ClinicalBoard.css';
 import Sparkline from '../components/Sparkline';
 import BulletGraph from '../components/BulletGraph';
-import { getMedicationRecommendations, getPatientHistory, getPatientSummary, uploadLabReport } from '../services/api';
+import { getMedicationRecommendations, getPatientHistory, getPatientSummary, ingestPatientLabs } from '../services/api';
 import type { PredictionResponse } from '../services/api';
 
 
@@ -16,6 +16,7 @@ const ClinicalBoard: React.FC = () => {
     const [results, setResults] = useState<PredictionResponse | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [ocrResults, setOcrResults] = useState<{ [key: string]: { value: any, unit: string } } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // Data State
@@ -126,46 +127,30 @@ const ClinicalBoard: React.FC = () => {
 
     const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
-        if (!file) return;
+        if (!file || !patientId) return;
 
         setIsUploading(true);
+        setOcrResults(null);
         try {
-            const result = await uploadLabReport(file);
+            const result = await ingestPatientLabs(patientId, file);
             if (result.status === 'success') {
                 const labs = result.lab_values || {};
                 
-                // Map the OCR labs to the frontend vitals tracker
+                // Keep the live vitals on the left pane synced with the new data
                 const updated = { ...currentVitals };
-                if (labs['heart_rate'] && labs['heart_rate'].value) updated.hr = labs['heart_rate'].value.toString();
-                if (labs['systolic_bp'] && labs['systolic_bp'].value) updated.bp = labs['systolic_bp'].value.toString();
-                if (labs['ejection_fraction'] && labs['ejection_fraction'].value) updated.ef = (labs['ejection_fraction'].value * 100).toString(); // it's 0.60
-                if (labs['creatinine'] && labs['creatinine'].value) updated.cr = labs['creatinine'].value.toString();
-                if (labs['sodium'] && labs['sodium'].value) updated.na = labs['sodium'].value.toString();
-                if (labs['cholesterol'] && labs['cholesterol'].value) updated.chol = labs['cholesterol'].value.toString();
-                if (labs['hemoglobin'] && labs['hemoglobin'].value) updated.hgb = labs['hemoglobin'].value.toString();
+                if (labs['Heart Rate'] && labs['Heart Rate'].value) updated.hr = labs['Heart Rate'].value.toString();
+                if (labs['Systolic Bp'] && labs['Systolic Bp'].value) updated.bp = labs['Systolic Bp'].value.toString();
+                if (labs['Ejection Fraction'] && labs['Ejection Fraction'].value) updated.ef = (labs['Ejection Fraction'].value * 100).toString();
+                if (labs['Creatinine'] && labs['Creatinine'].value) updated.cr = labs['Creatinine'].value.toString();
+                if (labs['Sodium'] && labs['Sodium'].value) updated.na = labs['Sodium'].value.toString();
+                if (labs['Cholesterol'] && labs['Cholesterol'].value) updated.chol = labs['Cholesterol'].value.toString();
+                if (labs['Hemoglobin'] && labs['Hemoglobin'].value) updated.hgb = labs['Hemoglobin'].value.toString();
                 
                 setCurrentVitals(updated);
+                setOcrResults(labs); // Triggers inline rendering below the button
 
-                // Generate and download a CSV sheet format
-                const csvRows = ['Parameter,Value,Unit,Source'];
-                Object.entries(labs).forEach(([key, val]: [string, any]) => {
-                    csvRows.push(`"${key}","${val.value || ''}","${val.unit || ''}","OCR Extracted Lab Report"`);
-                });
-
-                const csvData = csvRows.join('\r\n');
-
-                // Use data URI instead of blob URL — avoids Vite router interception
-                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvData);
-                const link = document.createElement('a');
-                link.href = dataUri;
-                link.download = `${patientId}_twin_ingest_${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                alert("OCR complete! CSV downloaded. Values injected into Digital Twin context.");
             } else {
-                alert("Failed to parse document.");
+                alert(`OCR Note: ${result.message || "Failed to parse structured dict."}`);
             }
         } catch (e) {
             console.error(e);
@@ -358,6 +343,27 @@ const ClinicalBoard: React.FC = () => {
                             {isUploading ? 'OCR ENGINE PARSING DATA...' : 'Click to inject Prescription/Lab OCR'}
                         </span>
                     </div>
+
+                    {ocrResults && (
+                        <div style={{ marginTop: 'var(--spacing-md)', padding: 'var(--spacing-md)', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-accent-blue)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                                <span style={{ fontWeight: 600, fontSize: 'var(--font-size-xs)', color: 'var(--color-accent-blue)' }}>SUCCESSFULLY EXTRACTED & LOGGED</span>
+                                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>{Object.keys(ocrResults).length} parameters found</span>
+                            </div>
+                            <div style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                <table className="data-table" style={{ fontSize: 'var(--font-size-xs)', marginBottom: 0 }}>
+                                    <tbody>
+                                        {Object.entries(ocrResults).map(([key, item]) => (
+                                            <tr key={key}>
+                                                <td style={{ padding: '4px 8px', width: '60%' }}>{key}</td>
+                                                <td style={{ padding: '4px 8px', fontWeight: 600 }}>{item.value} <span style={{ fontWeight: 400, color: 'var(--color-text-muted)' }}>{item.unit}</span></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 
