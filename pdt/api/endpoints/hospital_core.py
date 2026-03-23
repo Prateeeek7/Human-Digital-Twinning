@@ -14,8 +14,12 @@ router = APIRouter()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 DB_PATH = os.path.join(BASE_DIR, "data", "hospital_core.db")
 CLINICAL_DB_PATH = os.path.join(BASE_DIR, "data", "clinical_patients.db")
+PATIENT_DB_DIR = os.path.join(BASE_DIR, "data", "PatientDatabase")
 ALLERGENS_CSV_PATH = os.path.join(BASE_DIR, "food_ingredients_and_allergens.csv")
 MEDS_CSV_PATH = os.path.join(BASE_DIR, "A_Z_medicines_dataset_of_India.csv")
+
+# Ensure PatientDatabase directory exists
+os.makedirs(PATIENT_DB_DIR, exist_ok=True)
 
 # In-memory caches for fast autocomplete
 MEDICINES_CACHE = []
@@ -227,9 +231,33 @@ async def create_new_encounter(encounter: NewEncounterModel):
                 ))
 
         h_conn.commit()
-        c_conn.commit()
+        # ---------------------------------------------------------
+        # 3. Write Isolated PatientDatabase JSON File
+        # ---------------------------------------------------------
+        isolated_twin = {
+            "patient_id": patient_id,
+            "mrn": mrn,
+            "encounter_visit_id": visit_id,
+            "admission_time": timestamp,
+            "demographics": demographics,
+            "comorbidities": comorbidities,
+            "vitals": [{"timestamp": timestamp, "name": n, "value": v, "unit": u} for n, v, u in v_list],
+            "labs": [{"timestamp": timestamp, "name": n, "value": v, "unit": u} for n, v, u in l_list],
+            "medications": [
+                {
+                    "name": med.name,
+                    "dosage": med.dosage,
+                    "frequency": [k for k, val in med.timing.dict().items() if val],
+                    "start_date": timestamp
+                } for med in (encounter.medications or [])
+            ]
+        }
         
-        return {"patient_id": patient_id, "mrn": mrn, "status": "success"}
+        patient_json_path = os.path.join(PATIENT_DB_DIR, f"{patient_id}.json")
+        with open(patient_json_path, 'w', encoding='utf-8') as f:
+            json.dump(isolated_twin, f, indent=4)
+
+        return {"patient_id": patient_id, "mrn": mrn, "status": "success", "file": patient_json_path}
     except Exception as e:
         h_conn.rollback()
         c_conn.rollback()
@@ -296,6 +324,33 @@ async def ingest_labs_from_document(patient_id: str, file: UploadFile = File(...
             c_conn.commit()
         finally:
             c_conn.close()
+
+        # ---------------------------------------------------------
+        # 3. Append to Isolated PatientDatabase JSON File
+        # ---------------------------------------------------------
+        patient_json_path = os.path.join(PATIENT_DB_DIR, f"{patient_id}.json")
+        if os.path.exists(patient_json_path):
+            with open(patient_json_path, 'r', encoding='utf-8') as f:
+                try:
+                    isolated_twin = json.load(f)
+                except json.JSONDecodeError:
+                    isolated_twin = None
+                
+            if isolated_twin and 'labs' in isolated_twin:
+                for lab_name, info in lab_values.items():
+                    value = info.get('value')
+                    unit = info.get('unit') or ''
+                    if value is not None:
+                        isolated_twin['labs'].append({
+                            "timestamp": timestamp,
+                            "name": lab_name.replace('_', ' ').title(),
+                            "value": float(value),
+                            "unit": unit
+                        })
+                # Save it back
+                with open(patient_json_path, 'w', encoding='utf-8') as f:
+                    json.dump(isolated_twin, f, indent=4)
+        # ---------------------------------------------------------
 
         # Build clean payload for the frontend
         structured = {

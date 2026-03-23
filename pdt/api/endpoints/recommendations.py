@@ -78,7 +78,7 @@ class PatientInfo(BaseModel):
 
 class MedicationRecommendationRequest(BaseModel):
     """Request for medication recommendations."""
-    patient_info: PatientInfo
+    patient_id: str
     current_medications: Optional[List[str]] = None
     time_horizon_days: int = Field(90, ge=1, le=365, description="Prediction time horizon in days")
 
@@ -116,23 +116,67 @@ async def get_medication_recommendations(request: MedicationRecommendationReques
                 detail="Model is not trained. Please train the model first before requesting recommendations."
             )
         
-        # Convert patient info to dict
-        patient_dict = request.patient_info.dict(exclude_none=True)
+        patient_json_path = Path("data/PatientDatabase") / f"{request.patient_id}.json"
         
-        # Validate minimum required data
-        if not patient_dict.get('age') or patient_dict.get('age') is None:
+        if not patient_json_path.exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"Digital Twin file not found for patient {request.patient_id}. Start an encounter first."
+            )
+            
+        import json
+        with open(patient_json_path, 'r', encoding='utf-8') as f:
+            twin_data = json.load(f)
+            
+        # Map JSON structure to the flat dictionary the AI model expects
+        patient_dict = {}
+        
+        # Demographics
+        demo = twin_data.get('demographics', {})
+        patient_dict['age'] = demo.get('age')
+        patient_dict['gender'] = demo.get('sex', "Male")
+        
+        # Comorbidities
+        comorb = twin_data.get('comorbidities', {})
+        patient_dict.update(comorb)
+        
+        # Latest Vitals & Labs (take most recent reading matching the name)
+        def get_latest(arr, name):
+            matches = [x for x in arr if x.get('name', '').lower() == name.lower()]
+            if matches:
+                 # sort by timestamp desc just in case
+                 matches.sort(key=lambda x: x.get('timestamp', ''), reverse=True)
+                 return matches[0].get('value')
+            return None
+            
+        vitals = twin_data.get('vitals', [])
+        patient_dict['heart_rate'] = get_latest(vitals, 'heart rate')
+        patient_dict['systolic_bp'] = get_latest(vitals, 'systolic bp')
+        patient_dict['diastolic_bp'] = get_latest(vitals, 'diastolic bp')
+        
+        labs = twin_data.get('labs', [])
+        patient_dict['ejection_fraction'] = get_latest(labs, 'ejection fraction')
+        patient_dict['creatinine'] = get_latest(labs, 'creatinine')
+        patient_dict['sodium'] = get_latest(labs, 'sodium')
+        patient_dict['cholesterol'] = get_latest(labs, 'cholesterol')
+        patient_dict['hba1c'] = get_latest(labs, 'hba1c')
+        patient_dict['hemoglobin'] = get_latest(labs, 'hemoglobin')
+        
+        # Validate minimum required data for HF model
+        if not patient_dict.get('age'):
+            patient_dict['age'] = 65  # fallback if missing for some reason
+            
+        if patient_dict.get('ejection_fraction') is None:
             raise HTTPException(
                 status_code=400,
-                detail="Missing required field: age. Please provide patient age for accurate recommendations."
+                detail="Missing required field: Ejection Fraction in the patient's record."
             )
         
-        if not patient_dict.get('ejection_fraction') or patient_dict.get('ejection_fraction') is None:
-            raise HTTPException(
-                status_code=400,
-                detail="Missing required field: ejection_fraction. Please provide ejection fraction for accurate recommendations."
-            )
-        
-        # Get recommendations
+        # Ensure EF is a 0.0-1.0 fraction
+        if patient_dict['ejection_fraction'] > 1.0:
+            patient_dict['ejection_fraction'] /= 100.0
+
+        # Run AI prediction directly on mapping
         recommendations = recommender.get_recommendations(
             patient_info=patient_dict,
             current_medications=request.current_medications,

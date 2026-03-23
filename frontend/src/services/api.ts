@@ -10,24 +10,7 @@ const api = axios.create({
 });
 
 export interface PredictionRequest {
-    patient_info: {
-        age: number;
-        sex: string;
-        ejection_fraction: number;
-        systolic_bp: number;
-        diastolic_bp?: number;
-        heart_rate?: number;
-        creatinine?: number;
-        sodium?: number;
-        cholesterol?: number;
-        hba1c?: number;
-        hemoglobin?: number;
-        diabetes: boolean;
-        high_blood_pressure: boolean;
-        high_cholesterol?: boolean;
-        anaemia: boolean;
-        smoking: boolean;
-    };
+    patient_id: string;
     time_horizon_days: number;
     current_medications?: string[];
 }

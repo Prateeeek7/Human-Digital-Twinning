@@ -98,28 +98,16 @@ const ClinicalBoard: React.FC = () => {
     const handleRunAI = async () => {
         setIsLoading(true);
         try {
+            if (!patientId) return;
             const res = await getMedicationRecommendations({
-                patient_info: {
-                    age: patientSummary?.demographics?.age || 65,
-                    sex: patientSummary?.demographics?.sex || "M",
-                    ejection_fraction: parseFloat(currentVitals.ef) / 100 || 0.35,
-                    systolic_bp: parseFloat(currentVitals.bp) || 140,
-                    diabetes: patientSummary?.comorbidities?.diabetes || false,
-                    high_blood_pressure: patientSummary?.comorbidities?.high_blood_pressure || false,
-                    anaemia: patientSummary?.comorbidities?.anaemia || false,
-                    smoking: patientSummary?.comorbidities?.smoking || false,
-                    creatinine: parseFloat(currentVitals.cr) || 1.2,
-                    sodium: parseFloat(currentVitals.na) || 140,
-                    cholesterol: parseFloat(currentVitals.chol) || 200,
-                    hba1c: currentVitals.hba1c !== '--' ? parseFloat(currentVitals.hba1c) : undefined,
-                    hemoglobin: currentVitals.hgb !== '--' ? parseFloat(currentVitals.hgb) : undefined
-                },
-                time_horizon_days: horizonDays
+                patient_id: patientId,
+                time_horizon_days: horizonDays,
+                current_medications: ["Carvedilol 6.25mg BID", "Lisinopril 10mg Daily"], // Mock current meds for demo
             });
             setResults(res);
         } catch (err) {
-            console.error(err);
-            alert("Digital Twin AI failed to compile scenario.");
+            console.error("Failed to fetch recommendations:", err);
+            // Don't alert here; the UI error is handled separately
         } finally {
             setIsLoading(false);
         }
