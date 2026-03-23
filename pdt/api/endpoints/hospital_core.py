@@ -194,11 +194,11 @@ async def create_new_encounter(encounter: NewEncounterModel):
                 # We attempt to separate dosage number from unit, but since it's free text, just put in dosage_unit for now or let dosage be 0 and put all in dosage_unit
                 c_cursor.execute('''
                     INSERT INTO medication_history 
-                    (patient_id, medication_name, start_date, dosage, dosage_unit, frequency, source, status) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    (patient_id, medication_name, start_date, dosage, dosage_unit, frequency, source) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     patient_id, med.name, timestamp, 
-                    1.0, med.dosage, freq_str, "Admission Intake", "active"
+                    1.0, med.dosage, freq_str, "Admission Intake"
                 ))
 
         h_conn.commit()
