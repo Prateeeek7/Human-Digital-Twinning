@@ -85,8 +85,8 @@ class LabReportParser:
             # Lipid panel
             'cholesterol': [
                 r'total\s+cholesterol',
-                r'cholesterol',
-                r'tc'
+                r'(?<![a-z])cholesterol(?!crit)',  # avoid Plateletcrit / Haematocrit
+                r'\bTC\b'
             ],
             'ldl': [
                 r'ldl',
@@ -100,8 +100,8 @@ class LabReportParser:
             ],
             'triglycerides': [
                 r'triglyceride',
-                r'tg',
-                r'trig'
+                r'\bTG\b',
+                r'\btrig\b'
             ],
             
             # Liver function
@@ -118,9 +118,9 @@ class LabReportParser:
             
             # Other
             'cpk': [
-                r'creatine\s+phosphokinase',
-                r'cpk',
-                r'ck'
+                r'creatine\s+(?:phospho)?kinase',
+                r'\bCPK\b',
+                r'\bCK\b(?!\s*D)'
             ],
             'tsh': [
                 r'tsh',
@@ -181,9 +181,9 @@ class LabReportParser:
                 matches = list(re.finditer(pattern, text_lower, re.IGNORECASE))
                 
                 for match in matches:
-                    # Get context around match
+                    # Get context around match — wider window for tabular reports
                     start = match.start()
-                    end = min(len(text), match.end() + 50)
+                    end = min(len(text), match.end() + 150)
                     context = text[start:end]
                     
                     # Extract value
@@ -200,23 +200,34 @@ class LabReportParser:
         return lab_values
     
     def _extract_value_from_context(self, context: str, lab_name: str) -> Optional[float]:
-        """Extract numeric value from context."""
-        # Look for numbers near the lab name
-        # Pattern: lab_name : value or lab_name value
+        """Extract numeric value from context.
+
+        Handles both colon-separated (lab: 1.2) and tabular
+        (Test Name   1.2   g/dL   ref) formats seen in Indian lab reports.
+        """
         patterns = [
+            # Colon / equals separated  →  Haemoglobin: 13.7
             r':\s*(\d+(?:\.\d+)?)',
-            r'\s+(\d+(?:\.\d+)?)',
             r'=\s*(\d+(?:\.\d+)?)',
+            # Tabular — value followed by a unit  →  13.7 g/dL
+            r'(\d+(?:\.\d+)?)\s*(?:g/dL|gm/dl|g/dl|mg/dL|mg/dl|mmol/L|mEq/L|mEq/l|'
+            r'ng/mL|ng/ml|pg/mL|pg/ml|%|U/L|u/L|IU/L|iu/l|fL|fl|fl\b|10\^3/uL|'
+            r'10\*3/uL|10\'3/uL|10.3/uL|10\xb03/uL|10\xb3/uL|IU/mL|ng/dL|uIU/mL|mU/L|units)',
+            # Tabular — plain whitespace-separated number (last resort)
+            r'\s+(\d+(?:\.\d+)?)\s',
         ]
         
         for pattern in patterns:
-            match = re.search(pattern, context)
+            match = re.search(pattern, context, re.IGNORECASE)
             if match:
                 try:
                     value = float(match.group(1))
-                    # Special handling for percentages (ejection fraction)
+                    # Ejection fraction is stored as fraction (0–1), not percentage
                     if lab_name == 'ejection_fraction' and value > 1:
                         value = value / 100.0
+                    # Sanity-check: reject implausibly large numbers for most labs
+                    if value > 100000:
+                        continue
                     return value
                 except ValueError:
                     continue
