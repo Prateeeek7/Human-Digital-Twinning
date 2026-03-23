@@ -153,21 +153,15 @@ const ClinicalBoard: React.FC = () => {
                 });
 
                 const csvData = csvRows.join('\r\n');
-                const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-                const url = URL.createObjectURL(blob);
 
-                // Use a proper link click to force file download (not tab navigation)
+                // Use data URI instead of blob URL — avoids Vite router interception
+                const dataUri = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csvData);
                 const link = document.createElement('a');
-                link.href = url;
+                link.href = dataUri;
                 link.download = `${patientId}_twin_ingest_${new Date().toISOString().split('T')[0]}.csv`;
-                link.style.display = 'none';
                 document.body.appendChild(link);
                 link.click();
-                // Small delay before revoking so browser can start the download
-                setTimeout(() => {
-                    URL.revokeObjectURL(url);
-                    document.body.removeChild(link);
-                }, 250);
+                document.body.removeChild(link);
 
                 alert("OCR complete! CSV downloaded. Values injected into Digital Twin context.");
             } else {
