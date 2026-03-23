@@ -106,6 +106,11 @@ class NewEncounterModel(BaseModel):
     sodium: str
     potassium: str
     bnp: str
+    diabetes: bool = False
+    highBloodPressure: bool = False
+    highCholesterol: bool = False
+    anaemia: bool = False
+    smoking: bool = False
     medications: Optional[List[MedicationEntry]] = []
 
 @router.post("/encounter")
@@ -149,11 +154,19 @@ async def create_new_encounter(encounter: NewEncounterModel):
             "allergies": encounter.allergies,
             "code_status": "FULL CODE"
         }
+        
+        comorbidities = {
+            "diabetes": encounter.diabetes,
+            "high_blood_pressure": encounter.highBloodPressure,
+            "high_cholesterol": encounter.highCholesterol,
+            "anaemia": encounter.anaemia,
+            "smoking": encounter.smoking
+        }
 
         c_cursor.execute('''
-            INSERT INTO patients (patient_id, demographics, active_status)
-            VALUES (?, ?, 'active')
-        ''', (patient_id, json.dumps(demographics)))
+            INSERT INTO patients (patient_id, demographics, comorbidities, active_status)
+            VALUES (?, ?, ?, 'active')
+        ''', (patient_id, json.dumps(demographics), json.dumps(comorbidities)))
 
         # Vitals
         v_list = [

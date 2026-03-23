@@ -8,7 +8,7 @@
 }
 
 .ne-header {
-    height: 105px;
+    height: 80px;
     background-color: var(--color-bg-base);
     border-bottom: 2px solid var(--color-border-strong);
     display: flex;
@@ -107,6 +107,10 @@
     border-color: rgba(59, 130, 246, 0.3);
 }
 
+.border-purple {
+    border-color: rgba(168, 85, 247, 0.3);
+}
+
 .ne-panel-head {
     background-color: var(--color-bg-base);
     padding: var(--spacing-md);
@@ -126,6 +130,10 @@
 
 .text-blue {
     color: var(--color-accent-blue);
+}
+
+.text-purple {
+    color: #a855f7; /* Tailwind purple-500 equivalent */
 }
 
 .ne-panel-body {

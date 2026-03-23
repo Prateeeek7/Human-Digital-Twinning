@@ -35,6 +35,13 @@ const NewEncounter: React.FC = () => {
         potassium: '',
         bnp: '',
 
+        // Comorbidities
+        diabetes: false,
+        highBloodPressure: false,
+        highCholesterol: false,
+        anaemia: false,
+        smoking: false,
+
         medications: [] as any[]
     });
 
@@ -176,9 +183,12 @@ const NewEncounter: React.FC = () => {
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const target = e.target as HTMLInputElement;
+        const value = target.type === 'checkbox' ? target.checked : target.value;
+        
         setFormData({
             ...formData,
-            [e.target.name]: e.target.value
+            [target.name]: value
         });
     };
 
@@ -302,6 +312,32 @@ const NewEncounter: React.FC = () => {
                                         ))}
                                     </div>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* COMORBIDITIES */}
+                        <div className="ne-panel border-purple" style={{ marginTop: '24px' }}>
+                            <div className="ne-panel-head text-purple">
+                                <Activity size={16} /> COMORBIDITIES & RISK FACTORS
+                            </div>
+                            <div className="ne-panel-body" style={{ padding: '24px' }}>
+                                <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" name="diabetes" checked={formData.diabetes} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Diabetes Mellitus
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" name="highBloodPressure" checked={formData.highBloodPressure} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Hypertension (High BP)
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" name="highCholesterol" checked={formData.highCholesterol} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Hyperlipidemia
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" name="anaemia" checked={formData.anaemia} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Anaemia
+                                    </label>
+                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                        <input type="checkbox" name="smoking" checked={formData.smoking} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Active Smoker
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
