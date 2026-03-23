@@ -224,8 +224,15 @@ const ClinicalBoard: React.FC = () => {
 
                         <div style={{ padding: 'var(--spacing-md)', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border-strong)' }}>
                             <h3 style={{ marginBottom: 'var(--spacing-sm)' }}>Current Medications</h3>
-                            <span style={{ display: 'inline-block', backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-strong)', padding: '2px 6px', fontSize: 'var(--font-size-xs)', borderRadius: '2px', marginRight: '4px' }}>ASPIRIN</span>
-                            <span style={{ display: 'inline-block', backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-strong)', padding: '2px 6px', fontSize: 'var(--font-size-xs)', borderRadius: '2px' }}>METFORMIN</span>
+                            {patientSummary?.current_medications && patientSummary.current_medications.length > 0 ? (
+                                patientSummary.current_medications.map((med: string, idx: number) => (
+                                    <span key={idx} style={{ display: 'inline-block', backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-strong)', padding: '2px 6px', fontSize: 'var(--font-size-xs)', borderRadius: '2px', marginRight: '4px', marginBottom: '4px' }}>
+                                        {med.toUpperCase()}
+                                    </span>
+                                ))
+                            ) : (
+                                <span style={{ fontSize: '10px', color: 'var(--color-text-muted)' }}>NO ACTIVE MEDICATIONS</span>
+                            )}
                         </div>
                     </div>
                 </div>

@@ -3,8 +3,11 @@ import './PatientBanner.css';
 import { AlertTriangle, Info } from 'lucide-react';
 import { getPatientSummary } from '../services/api';
 
-const PatientBanner: React.FC = () => {
-    const [patientId] = useState('PT-001');
+interface PatientBannerProps {
+    patientId: string;
+}
+
+const PatientBanner: React.FC<PatientBannerProps> = ({ patientId }) => {
     const [patientData, setPatientData] = useState<any>(null);
 
     useEffect(() => {
@@ -16,7 +19,9 @@ const PatientBanner: React.FC = () => {
                 console.error("Failed to load banner data:", err);
             }
         };
-        fetchHeader();
+        if (patientId) {
+            fetchHeader();
+        }
     }, [patientId]);
 
     if (!patientData) {

@@ -114,7 +114,7 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
 
             {/* Patient Context Banner */}
             <header className="patient-banner">
-                <PatientBanner />
+                <PatientBanner patientId={activeId} />
             </header>
 
             {/* Main Workspace Grid */}
