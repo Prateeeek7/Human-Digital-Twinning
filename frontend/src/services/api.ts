@@ -20,6 +20,8 @@ export interface PredictionRequest {
         creatinine?: number;
         sodium?: number;
         cholesterol?: number;
+        hba1c?: number;
+        hemoglobin?: number;
         diabetes: boolean;
         high_blood_pressure: boolean;
         high_cholesterol?: boolean;

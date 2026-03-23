@@ -111,6 +111,9 @@ class NewEncounterModel(BaseModel):
     highCholesterol: bool = False
     anaemia: bool = False
     smoking: bool = False
+    hba1c: Optional[str] = ""
+    cholesterol: Optional[str] = ""
+    hemoglobin: Optional[str] = ""
     medications: Optional[List[MedicationEntry]] = []
 
 @router.post("/encounter")
@@ -184,12 +187,21 @@ async def create_new_encounter(encounter: NewEncounterModel):
 
         # Labs
         l_list = [
-            ("Ejection Fraction", float(encounter.ejectionFraction), "%"),
-            ("Creatinine", float(encounter.creatinine), "mg/dL"),
-            ("Sodium", float(encounter.sodium), "mEq/L"),
-            ("Potassium", float(encounter.potassium), "mEq/L"),
-            ("BNP", float(encounter.bnp), "pg/mL")
+            ("Ejection Fraction", float(encounter.ejectionFraction) if encounter.ejectionFraction else 0.0, "%"),
+            ("Creatinine", float(encounter.creatinine) if encounter.creatinine else 0.0, "mg/dL"),
+            ("Sodium", float(encounter.sodium) if encounter.sodium else 0.0, "mEq/L"),
+            ("Potassium", float(encounter.potassium) if encounter.potassium else 0.0, "mEq/L"),
+            ("BNP", float(encounter.bnp) if encounter.bnp else 0.0, "pg/mL")
         ]
+        
+        # Add conditional labs if provided
+        if encounter.hba1c:
+            l_list.append(("HbA1c", float(encounter.hba1c), "%"))
+        if encounter.cholesterol:
+            l_list.append(("Cholesterol", float(encounter.cholesterol), "mg/dL"))
+        if encounter.hemoglobin:
+            l_list.append(("Hemoglobin", float(encounter.hemoglobin), "g/dL"))
+
         for name, val, unit in l_list:
             c_cursor.execute(
                 "INSERT INTO lab_values (patient_id, timestamp, lab_name, value, unit) VALUES (?, ?, ?, ?, ?)",

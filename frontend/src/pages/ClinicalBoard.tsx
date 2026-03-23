@@ -31,7 +31,9 @@ const ClinicalBoard: React.FC = () => {
         ef: '--',
         cr: '--',
         na: '--',
-        chol: '--'
+        chol: '--',
+        hba1c: '--',
+        hgb: '--'
     });
 
     useEffect(() => {
@@ -65,10 +67,19 @@ const ClinicalBoard: React.FC = () => {
 
                     cholArr = history.labs.filter((v: any) => v.lab_name === 'Cholesterol').map((v: any) => v.value);
                     if (cholArr.length > 0) currChol = cholArr[cholArr.length - 1].toString();
+
+                    const hba1cArr = history.labs.filter((v: any) => v.lab_name === 'HbA1c').map((v: any) => v.value);
+                    const currHba1c = hba1cArr.length > 0 ? hba1cArr[hba1cArr.length - 1].toString() : '--';
+
+                    const hgbArr = history.labs.filter((v: any) => v.lab_name === 'Hemoglobin').map((v: any) => v.value);
+                    const currHgb = hgbArr.length > 0 ? hgbArr[hgbArr.length - 1].toString() : '--';
+
+                    setCurrentVitals({ hr: currHr, bp: currBp, ef: currEf, cr: currCr, na: currNa, chol: currChol, hba1c: currHba1c, hgb: currHgb });
+                } else {
+                    setCurrentVitals({ hr: currHr, bp: currBp, ef: currEf, cr: currCr, na: currNa, chol: currChol, hba1c: '--', hgb: '--' });
                 }
 
                 setTrends({ hr: hrArr, bp: bpArr, ef: efArr, cr: crArr, na: naArr, chol: cholArr });
-                setCurrentVitals({ hr: currHr, bp: currBp, ef: currEf, cr: currCr, na: currNa, chol: currChol });
                 setIsDataLoaded(true);
 
             } catch (err) {
@@ -94,7 +105,9 @@ const ClinicalBoard: React.FC = () => {
                     smoking: patientSummary?.comorbidities?.smoking || false,
                     creatinine: parseFloat(currentVitals.cr) || 1.2,
                     sodium: parseFloat(currentVitals.na) || 140,
-                    cholesterol: parseFloat(currentVitals.chol) || 200
+                    cholesterol: parseFloat(currentVitals.chol) || 200,
+                    hba1c: currentVitals.hba1c !== '--' ? parseFloat(currentVitals.hba1c) : undefined,
+                    hemoglobin: currentVitals.hgb !== '--' ? parseFloat(currentVitals.hgb) : undefined
                 },
                 time_horizon_days: horizonDays
             });

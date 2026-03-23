@@ -42,6 +42,11 @@ const NewEncounter: React.FC = () => {
         anaemia: false,
         smoking: false,
 
+        // Conditional Labs
+        hba1c: '',
+        cholesterol: '',
+        hemoglobin: '',
+
         medications: [] as any[]
     });
 
@@ -321,22 +326,41 @@ const NewEncounter: React.FC = () => {
                                 <Activity size={16} /> COMORBIDITIES & RISK FACTORS
                             </div>
                             <div className="ne-panel-body" style={{ padding: '24px' }}>
-                                <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                                        <input type="checkbox" name="diabetes" checked={formData.diabetes} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Diabetes Mellitus
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                                        <input type="checkbox" name="highBloodPressure" checked={formData.highBloodPressure} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Hypertension (High BP)
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                                        <input type="checkbox" name="highCholesterol" checked={formData.highCholesterol} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Hyperlipidemia
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                                        <input type="checkbox" name="anaemia" checked={formData.anaemia} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Anaemia
-                                    </label>
-                                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
-                                        <input type="checkbox" name="smoking" checked={formData.smoking} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Active Smoker
-                                    </label>
+                                <div className="form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" name="diabetes" checked={formData.diabetes} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Diabetes Mellitus
+                                        </label>
+                                        {formData.diabetes && (
+                                            <input type="number" step="0.1" name="hba1c" value={formData.hba1c} onChange={handleChange} placeholder="HbA1c (%)" className="form-input" style={{ marginLeft: '24px', width: '120px', padding: '4px', fontSize: '12px' }} required />
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" name="highBloodPressure" checked={formData.highBloodPressure} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Hypertension (High BP)
+                                        </label>
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" name="highCholesterol" checked={formData.highCholesterol} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Hyperlipidemia
+                                        </label>
+                                        {formData.highCholesterol && (
+                                            <input type="number" name="cholesterol" value={formData.cholesterol} onChange={handleChange} placeholder="Cholesterol (mg/dL)" className="form-input" style={{ marginLeft: '24px', width: '150px', padding: '4px', fontSize: '12px' }} required />
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" name="anaemia" checked={formData.anaemia} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Anaemia
+                                        </label>
+                                        {formData.anaemia && (
+                                            <input type="number" step="0.1" name="hemoglobin" value={formData.hemoglobin} onChange={handleChange} placeholder="Hemoglobin (g/dL)" className="form-input" style={{ marginLeft: '24px', width: '140px', padding: '4px', fontSize: '12px' }} required />
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '13px' }}>
+                                            <input type="checkbox" name="smoking" checked={formData.smoking} onChange={handleChange} style={{ width: '16px', height: '16px', accentColor: 'var(--color-accent-purple)' }} /> Active Smoker
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
