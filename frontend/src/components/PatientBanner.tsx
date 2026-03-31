@@ -59,7 +59,11 @@ const PatientBanner: React.FC<PatientBannerProps> = ({ patientId }) => {
                 <div className="pb-allergies">
                     <AlertTriangle size={14} className="pb-icon-alert" />
                     <span className="pb-label">ALLERGIES:</span>
-                    <span className="pb-val-alert">{(p.allergies || []).join(', ') || 'NONE RECORDED'}</span>
+                    <span className="pb-val-alert">
+                        {Array.isArray(p.allergies) 
+                            ? (p.allergies.join(', ') || 'NONE RECORDED') 
+                            : (p.allergies || 'NONE RECORDED')}
+                    </span>
                 </div>
                 <div className="pb-code-status">
                     <Info size={14} className="pb-icon-info" />
