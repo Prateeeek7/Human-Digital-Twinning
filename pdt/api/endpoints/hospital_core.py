@@ -231,6 +231,7 @@ async def create_new_encounter(encounter: NewEncounterModel):
                 ))
 
         h_conn.commit()
+        c_conn.commit()
         # ---------------------------------------------------------
         # 3. Write Isolated PatientDatabase JSON File
         # ---------------------------------------------------------
