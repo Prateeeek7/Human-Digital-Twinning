@@ -3,8 +3,10 @@ import { useParams } from 'react-router-dom';
 import './ClinicalBoard.css';
 import Sparkline from '../components/Sparkline';
 import BulletGraph from '../components/BulletGraph';
-import { getMedicationRecommendations, getPatientHistory, getPatientSummary, ingestPatientLabs } from '../services/api';
+import { getMedicationRecommendations, getPatientHistory, getPatientSummary, ingestPatientLabs, addMedication, searchMedicines } from '../services/api';
+import { Plus, X } from 'lucide-react';
 import type { PredictionResponse } from '../services/api';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 
 
@@ -18,6 +20,55 @@ const ClinicalBoard: React.FC = () => {
     const [isUploading, setIsUploading] = useState(false);
     const [ocrResults, setOcrResults] = useState<{ [key: string]: { value: any, unit: string } } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // Add Medication State
+    const [isAddMedOpen, setIsAddMedOpen] = useState(false);
+    const [medSearchInput, setMedSearchInput] = useState('');
+    const [medSearchResults, setMedSearchResults] = useState<string[]>([]);
+    const [selectedMed, setSelectedMed] = useState('');
+    const [medDosage, setMedDosage] = useState('');
+    const [isSavingMed, setIsSavingMed] = useState(false);
+
+    useEffect(() => {
+        if (medSearchInput.length > 2 && !selectedMed) {
+            const timer = setTimeout(async () => {
+                const results = await searchMedicines(medSearchInput);
+                setMedSearchResults(results);
+            }, 300);
+            return () => clearTimeout(timer);
+        } else {
+            setMedSearchResults([]);
+        }
+    }, [medSearchInput, selectedMed]);
+
+    const handleSaveMedication = async () => {
+        if (!selectedMed || !medDosage) return;
+        setIsSavingMed(true);
+        try {
+            await addMedication(patientId, {
+                name: selectedMed,
+                dosage: medDosage,
+                timing: {
+                    beforeBreakfast: true,
+                    afterBreakfast: false,
+                    beforeLunch: false,
+                    afterLunch: false,
+                    beforeDinner: false,
+                    afterDinner: false
+                }
+            });
+            const summary = await getPatientSummary(patientId);
+            setPatientSummary(summary);
+            setIsAddMedOpen(false);
+            setSelectedMed('');
+            setMedDosage('');
+            setMedSearchInput('');
+        } catch(e) {
+            console.error("Failed to add medication", e);
+        } finally {
+            setIsSavingMed(false);
+        }
+    };
 
     // Data State
     const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -150,8 +201,15 @@ const ClinicalBoard: React.FC = () => {
     };
 
     const currentRisk = { mortality: 25, readmission: 30 };
-    const targetMortality = results ? currentRisk.mortality + ((results.recommendations[0]?.predicted_effect?.mortality_risk_change || 0) * 100) : currentRisk.mortality;
-    const targetReadmission = results ? currentRisk.readmission + ((results.recommendations[0]?.predicted_effect?.readmission_risk_change || 0) * 100) : currentRisk.readmission;
+    const targetMortality = results ? currentRisk.mortality - ((results.recommendations[0]?.expected_mortality_reduction || 0) * 100) : currentRisk.mortality;
+    const targetReadmission = results ? currentRisk.readmission - ((results.recommendations[0]?.expected_mortality_reduction || 0) * 100 * 0.8) : currentRisk.readmission; // rough proxy
+
+    const trajectories = results?.recommendations[0]?.predicted_effect?.trajectories;
+    const chartData = trajectories ? trajectories.time_days.map((day: number, idx: number) => ({
+        day,
+        ef: (trajectories.ejection_fraction[idx] * 100).toFixed(1),
+        risk: (trajectories.mortality_risk[idx] * 100).toFixed(1)
+    })) : [];
 
     if (!isDataLoaded) {
         return (
@@ -160,6 +218,8 @@ const ClinicalBoard: React.FC = () => {
             </div>
         );
     }
+
+    const hrThreshold = parseInt(localStorage.getItem('hl7_alert_hr') || '100');
 
     return (
         <div className="clinical-board">
@@ -182,7 +242,7 @@ const ClinicalBoard: React.FC = () => {
                     <tbody>
                         <tr>
                             <td>Heart Rate</td>
-                            <td className="value-highlight">{currentVitals.hr} <span className="pane-subheader">bpm</span></td>
+                            <td className={parseInt(currentVitals.hr) > hrThreshold ? "value-critical" : "value-highlight"}>{currentVitals.hr} <span className="pane-subheader">bpm</span></td>
                             <td><Sparkline data={trends.hr} min={60} max={110} /></td>
                         </tr>
                         <tr>
@@ -237,10 +297,26 @@ const ClinicalBoard: React.FC = () => {
 
                     <div style={{ marginBottom: 'var(--spacing-md)', padding: 'var(--spacing-md)', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border-strong)', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
                         <h3 style={{ marginBottom: 'var(--spacing-sm)' }}>Predicted Trajectory</h3>
-                        <div style={{ flexGrow: 1, backgroundColor: 'var(--color-bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span className="pane-subheader">
-                                {results ? `[Trajectory Graph for EF +${((results.recommendations[0]?.predicted_effect?.ejection_fraction_change || 0) * 100).toFixed(1)}% over ${horizonDays}d]` : '[AWAITING AI COMPILE]'}
-                            </span>
+                        <div style={{ flexGrow: 1, backgroundColor: 'var(--color-bg-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
+                            {!results ? (
+                                <span className="pane-subheader">[AWAITING AI COMPILE]</span>
+                            ) : (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <LineChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-strong)" vertical={false} />
+                                        <XAxis dataKey="day" stroke="var(--color-text-muted)" tickFormatter={(d) => `Day ${d}`} />
+                                        <YAxis yAxisId="left" stroke="var(--color-text-secondary)" tickFormatter={(v) => `${v}%`} />
+                                        <YAxis yAxisId="right" orientation="right" stroke="var(--color-accent-red)" tickFormatter={(v) => `${v}%`} />
+                                        <Tooltip 
+                                            contentStyle={{ backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-strong)' }}
+                                            labelFormatter={(l) => `Day ${l}`}
+                                        />
+                                        <Legend />
+                                        <Line yAxisId="left" type="monotone" dataKey="ef" name="Ejection Fraction (%)" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                        <Line yAxisId="right" type="monotone" dataKey="risk" name="Mortality Risk (%)" stroke="var(--color-accent-red)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                    </LineChart>
+                                </ResponsiveContainer>
+                            )}
                         </div>
                     </div>
 
@@ -266,7 +342,12 @@ const ClinicalBoard: React.FC = () => {
                         </div>
 
                         <div style={{ padding: 'var(--spacing-md)', backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border-strong)' }}>
-                            <h3 style={{ marginBottom: 'var(--spacing-sm)' }}>Current Medications</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-sm)' }}>
+                                <h3>Current Medications</h3>
+                                <button className="btn btn-secondary" style={{ padding: '2px 6px', fontSize: '10px' }} onClick={() => setIsAddMedOpen(true)}>
+                                    <Plus size={10} style={{ marginRight: '2px' }}/> ADD
+                                </button>
+                            </div>
                             {patientSummary?.current_medications && patientSummary.current_medications.length > 0 ? (
                                 patientSummary.current_medications.map((med: string, idx: number) => (
                                     <span key={idx} style={{ display: 'inline-block', backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-strong)', padding: '2px 6px', fontSize: 'var(--font-size-xs)', borderRadius: '2px', marginRight: '4px', marginBottom: '4px' }}>
@@ -297,21 +378,27 @@ const ClinicalBoard: React.FC = () => {
                         <input type="number" className="form-input" value={horizonDays} onChange={(e) => setHorizonDays(parseInt(e.target.value) || 90)} />
                     </div>
 
-                    <h3 style={{ marginTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-sm)' }}>Recommended Action</h3>
+                    <h3 style={{ marginTop: 'var(--spacing-lg)', marginBottom: 'var(--spacing-sm)' }}>Recommended Action Options</h3>
                     {results ? (
-                        <div style={{ border: '2px solid var(--color-accent-blue)', backgroundColor: 'var(--color-bg-surface)', padding: 'var(--spacing-md)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-xs)' }}>
-                                <span style={{ fontWeight: 700, textTransform: 'uppercase' }}>{results.summary?.top_recommendation?.medication?.replace('_', ' ')}</span>
-                                <span style={{ color: results.recommendations[0]?.is_safe ? 'var(--color-accent-green)' : 'var(--color-accent-red)', fontWeight: 700, fontSize: 'var(--font-size-xs)' }}>
-                                    {results.recommendations[0]?.is_safe ? 'SAFE' : 'CONTRAINDICATED'}
-                                </span>
-                            </div>
-                            <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-md)' }}>
-                                Expected EF Improvement: +{((results.recommendations[0]?.predicted_effect?.ejection_fraction_change || 0) * 100).toFixed(1)}%<br />
-                                Mortality Risk Reduction: {((results.recommendations[0]?.predicted_effect?.mortality_risk_change || 0) * 100).toFixed(1)}%<br />
-                                Confidence Score: {(results.summary?.top_recommendation?.score || 0).toFixed(2)}
-                            </div>
-                            <button className="btn btn-primary" style={{ width: '100%' }}>ACCEPT & ORDER</button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                            {results.recommendations.slice(0, 3).map((rec, idx) => (
+                                <div key={idx} style={{ border: idx === 0 ? '2px solid var(--color-accent-blue)' : '1px solid var(--color-border-strong)', backgroundColor: 'var(--color-bg-surface)', padding: 'var(--spacing-md)' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-sm)' }}>
+                                        <div>
+                                            <div style={{ fontWeight: 700, textTransform: 'uppercase' }}>{rec.medication.replace('_', ' ')} <span style={{ color: 'var(--color-text-secondary)', fontSize: 'var(--font-size-xs)', marginLeft: '4px' }}>({rec.optimal_dose ? `${rec.optimal_dose.toFixed(1)}mg/daily` : 'Standard Dose'})</span></div>
+                                        </div>
+                                        <span style={{ color: rec.is_safe ? 'var(--color-accent-green)' : 'var(--color-accent-red)', fontWeight: 700, fontSize: 'var(--font-size-xs)' }}>
+                                            {rec.is_safe ? 'SAFE' : 'CONTRAINDICATED'}
+                                        </span>
+                                    </div>
+                                    <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-md)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                        <div>EF Benefit: <strong style={{ color: 'var(--color-text-primary)' }}>+{((rec.expected_ef_improvement || 0) * 100).toFixed(1)}%</strong></div>
+                                        <div>Mortality Drop: <strong style={{ color: 'var(--color-text-primary)' }}>{((rec.expected_mortality_reduction || 0) * 100).toFixed(1)}%</strong></div>
+                                        <div style={{ gridColumn: 'span 2' }}>Confidence Score: <strong style={{ color: 'var(--color-text-primary)' }}>{((rec.recommendation_score || 0) * 100).toFixed(1)}%</strong></div>
+                                    </div>
+                                    <button className={idx === 0 ? "btn btn-primary" : "btn"} style={{ width: '100%', fontSize: '10px' }}>{idx === 0 ? 'ACCEPT PRIMARY & ORDER' : 'SELECT ALTERNATIVE'}</button>
+                                </div>
+                            ))}
                         </div>
                     ) : (
                         <div style={{ border: '1px dashed var(--color-border-strong)', padding: 'var(--spacing-lg)', textAlign: 'center', backgroundColor: 'var(--color-bg-surface)' }}>
@@ -354,6 +441,54 @@ const ClinicalBoard: React.FC = () => {
                     )}
                 </div>
             </div>
+            {isAddMedOpen && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <div style={{ backgroundColor: 'var(--color-bg-base)', border: '1px solid var(--color-border-strong)', width: '400px', padding: 'var(--spacing-lg)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 'var(--spacing-md)' }}>
+                            <h2 style={{ fontSize: 'var(--font-size-lg)' }}>Add Medication</h2>
+                            <button onClick={() => setIsAddMedOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-primary)' }}><X size={16} /></button>
+                        </div>
+                        
+                        <div className="form-group" style={{ position: 'relative' }}>
+                            <label>MEDICATION NAME</label>
+                            <input 
+                                type="text" 
+                                value={selectedMed || medSearchInput} 
+                                onChange={(e) => {
+                                    setMedSearchInput(e.target.value);
+                                    if(selectedMed) setSelectedMed('');
+                                }} 
+                                placeholder="Search e.g. Metoprolol" 
+                            />
+                            {medSearchResults.length > 0 && !selectedMed && (
+                                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, backgroundColor: 'var(--color-bg-surface)', border: '1px solid var(--color-border-strong)', zIndex: 10 }}>
+                                    {medSearchResults.map((m, i) => (
+                                        <div 
+                                            key={i} 
+                                            style={{ padding: 'var(--spacing-sm)', cursor: 'pointer', borderBottom: '1px solid var(--color-border-subtle)' }}
+                                            onClick={() => { setSelectedMed(m); setMedSearchInput(''); setMedSearchResults([]); }}
+                                        >
+                                            {m}
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="form-group">
+                            <label>DOSAGE</label>
+                            <input type="text" value={medDosage} onChange={(e) => setMedDosage(e.target.value)} placeholder="e.g. 50mg" />
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--spacing-sm)', marginTop: 'var(--spacing-md)' }}>
+                            <button className="btn btn-secondary" onClick={() => setIsAddMedOpen(false)}>Cancel</button>
+                            <button className="btn btn-primary" onClick={handleSaveMedication} disabled={!selectedMed || !medDosage || isSavingMed}>
+                                {isSavingMed ? 'Saving...' : 'Save Medication'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );

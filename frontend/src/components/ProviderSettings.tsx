@@ -47,6 +47,13 @@ const ProviderSettings: React.FC<ProviderSettingsProps> = ({ isOpen, onClose, in
         setSaving(true);
         try {
             await updateProviderPreferences("DR-SMITH", prefs);
+            document.body.setAttribute('data-theme', prefs.theme);
+            if (prefs.density === 'comfortable') {
+                document.body.setAttribute('data-density', prefs.density);
+            } else {
+                document.body.removeAttribute('data-density');
+            }
+            localStorage.setItem('hl7_alert_hr', prefs.alert_threshold_hr.toString());
             onClose(); // Close on successful save
         } catch (error) {
             console.error("Failed to save preferences:", error);

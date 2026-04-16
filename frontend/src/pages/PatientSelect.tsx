@@ -105,7 +105,14 @@ const PatientSelect: React.FC = () => {
                                             <div><Phone size={12} /> {p.phone}</div>
                                             <div style={{ marginTop: '4px', fontSize: '11px', color: 'var(--color-text-muted)' }}><MapPin size={12} /> {p.address.substring(0, 30)}...</div>
                                         </td>
-                                        <td>
+                                        <td style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                            <button
+                                                className="gt-select-btn"
+                                                style={{ backgroundColor: 'transparent', border: '1px solid var(--color-border-strong)' }}
+                                                onClick={() => navigate(`/new-encounter?patientId=${p.id}`)}
+                                            >
+                                                ADD ENCOUNTER
+                                            </button>
                                             <button
                                                 className="gt-select-btn"
                                                 onClick={() => handleSelectPatient(p.id)}

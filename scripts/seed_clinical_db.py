@@ -77,11 +77,11 @@ def seed_database():
     
     # 2. INSERT PATIENT DEMOGRAPHICS
     demographics = {
-        "name": "DOE, JOHN A.",
+        "name": "KUMAR, RAJESH",
         "mrn": "MRN-8472910",
         "age": 65,
         "sex": "M",
-        "dob": "1959-04-12",
+        "dob": "1959-05-14",
         "weight": "82.5 kg",
         "height": "178 cm",
         "code_status": "FULL CODE",

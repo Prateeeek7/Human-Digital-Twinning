@@ -21,16 +21,27 @@ export interface PredictionResponse {
         recommendation_score: number;
         is_safe: boolean;
         expected_benefit: number;
-        predicted_effect: {
-            ejection_fraction_change: number;
-            mortality_risk_change: number;
-            readmission_risk_change: number;
-        }
+        expected_ef_improvement?: number;
+        expected_mortality_reduction?: number;
+        optimal_dose?: number;
+        typical_dose?: [number, number];
+        predicted_effect?: {
+            trajectories?: {
+                time_days: number[];
+                ejection_fraction: number[];
+                mortality_risk: number[];
+            };
+            predicted_effects?: {
+                ejection_fraction: number;
+                mortality_risk: number;
+                readmission_risk: number;
+            };
+        };
     }>;
     summary: {
         top_recommendation: {
             medication: string;
-            score: number;
+            recommendation_score: number;
         }
     }
 }
@@ -145,6 +156,11 @@ export const searchMedicines = async (query: string) => {
 export const createDigitalTwinEncounter = async (encounterData: any) => {
     const response = await api.post(`/hospital/encounter`, encounterData);
     return response.data.patient_id;
+};
+
+export const addMedication = async (patientId: string, medicationData: any) => {
+    const response = await api.post(`/hospital/patients/${patientId}/medications`, medicationData);
+    return response.data;
 };
 
 export default api;

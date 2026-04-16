@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { getOrderItems, submitOrders } from '../services/api';
 import './OrdersBoard.css';
 
@@ -15,6 +16,9 @@ const useDebounce = (value: string, delay: number) => {
 };
 
 const OrdersBoard: React.FC = () => {
+    const { id } = useParams<{ id: string }>();
+    const activeId = id || 'PT-001';
+
     const [activeTab, setActiveTab] = useState('sets');
     const [scratchpad, setScratchpad] = useState<any[]>([]);
 
@@ -54,7 +58,7 @@ const OrdersBoard: React.FC = () => {
 
     const handleSignOrders = async () => {
         try {
-            await submitOrders('PT-001', 'DR-SMITH', scratchpad);
+            await submitOrders(activeId, 'DR-SMITH', scratchpad);
             alert("SUCCESS: ORDER TRANSMISSION COMPLETED.");
             setScratchpad([]);
         } catch (err) {

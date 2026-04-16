@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Activity, Beaker, FileText, ArrowLeft, CheckCircle2, ShieldAlert, X, Pill, Plus } from 'lucide-react';
-import { createDigitalTwinEncounter, getAllergens, searchMedicines } from '../services/api';
+import { createDigitalTwinEncounter, getAllergens, searchMedicines, getMPIPatients } from '../services/api';
 import './NewEncounter.css';
 
 const NewEncounter: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const patientIdParam = searchParams.get('patientId');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Form State
@@ -20,6 +22,7 @@ const NewEncounter: React.FC = () => {
         allergies: '',
         weightKg: '',
         heightCm: '',
+        codeStatus: 'FULL CODE',
 
         // Vitals
         heartRate: '',
@@ -47,7 +50,8 @@ const NewEncounter: React.FC = () => {
         cholesterol: '',
         hemoglobin: '',
 
-        medications: [] as any[]
+        medications: [] as any[],
+        existingPatientId: patientIdParam || ''
     });
 
     const [allergenOptions, setAllergenOptions] = useState<string[]>([]);
@@ -61,6 +65,23 @@ const NewEncounter: React.FC = () => {
     const [activeMedDropdown, setActiveMedDropdown] = useState<number | null>(null);
 
     useEffect(() => {
+        if (patientIdParam) {
+            getMPIPatients(patientIdParam).then(data => {
+                if (data && data.length > 0) {
+                    const patient = data.find((p: any) => p.id === patientIdParam) || data[0];
+                    setFormData(prev => ({
+                        ...prev,
+                        firstName: patient.first_name || '',
+                        lastName: patient.last_name || '',
+                        dob: patient.dob || '',
+                        gender: patient.gender || 'M',
+                        phone: patient.phone || '',
+                        address: patient.address || ''
+                    }));
+                }
+            }).catch(err => console.error("Could not fetch patient", err));
+        }
+
         const fetchAllergens = async () => {
             try {
                 const data = await getAllergens();
@@ -257,6 +278,15 @@ const NewEncounter: React.FC = () => {
                                         <option value="M">Male</option>
                                         <option value="F">Female</option>
                                         <option value="O">Other</option>
+                                    </select>
+                                </div>
+                                <div className="form-group flex-1">
+                                    <label>CODE STATUS</label>
+                                    <select name="codeStatus" value={formData.codeStatus} onChange={handleChange} required>
+                                        <option value="FULL CODE">FULL CODE</option>
+                                        <option value="DNR">DNR (Do Not Resuscitate)</option>
+                                        <option value="DNI">DNI (Do Not Intubate)</option>
+                                        <option value="DNH">DNH (Do Not Hospitalize)</option>
                                     </select>
                                 </div>
                             </div>

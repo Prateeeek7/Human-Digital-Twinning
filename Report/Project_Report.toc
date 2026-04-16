@@ -1,0 +1,31 @@
+\contentsline {section}{\numberline {1}Field / Area of the Project}{1}{section.1}%
+\contentsline {section}{\numberline {2}Existing Work \& Publications}{1}{section.2}%
+\contentsline {section}{\numberline {3}Summary and Background of the Work}{2}{section.3}%
+\contentsline {section}{\numberline {4}Objectives}{2}{section.4}%
+\contentsline {section}{\numberline {5}Working Principle}{3}{section.5}%
+\contentsline {section}{\numberline {6}Block Diagram}{4}{section.6}%
+\contentsline {section}{\numberline {7}Algorithm}{4}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Digital Twin Instantiation Algorithm}{4}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}OCR Laboratory Ingestion Algorithm}{5}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Code}{5}{section.8}%
+\contentsline {subsection}{\numberline {8.1}Backend — Digital Twin Encounter Endpoint (Python/FastAPI)}{5}{subsection.8.1}%
+\contentsline {subsection}{\numberline {8.2}Frontend — Patient Selection with Encounter Routing (TypeScript/React)}{6}{subsection.8.2}%
+\contentsline {section}{\numberline {9}Results Snapshot}{6}{section.9}%
+\contentsline {subsection}{\numberline {9.1}New Encounter — Digital Twin Initiation}{6}{subsection.9.1}%
+\contentsline {subsection}{\numberline {9.2}Ongoing Medications at Admission}{7}{subsection.9.2}%
+\contentsline {subsection}{\numberline {9.3}Clinical Dashboard — Real-Time Telemetry Overview}{8}{subsection.9.3}%
+\contentsline {subsection}{\numberline {9.4}AI Prediction — Heart Failure Risk Modelling}{8}{subsection.9.4}%
+\contentsline {subsection}{\numberline {9.5}AI Prediction Graph and Recommended Medications}{9}{subsection.9.5}%
+\contentsline {subsection}{\numberline {9.6}OCR-Based Laboratory Report Ingestion}{9}{subsection.9.6}%
+\contentsline {subsection}{\numberline {9.7}Master Patient Index}{10}{subsection.9.7}%
+\contentsline {subsection}{\numberline {9.8}Orders Board — Medication Orders}{11}{subsection.9.8}%
+\contentsline {subsection}{\numberline {9.9}Order Sets and Clinical Pathways}{12}{subsection.9.9}%
+\contentsline {subsection}{\numberline {9.10}Orders Board — Laboratory Orders}{12}{subsection.9.10}%
+\contentsline {subsection}{\numberline {9.11}Results Routing — Clinical Inbox}{13}{subsection.9.11}%
+\contentsline {subsection}{\numberline {9.12}Bed Board / Unit View}{14}{subsection.9.12}%
+\contentsline {subsection}{\numberline {9.13}Surgical and Clinical Schedule}{14}{subsection.9.13}%
+\contentsline {section}{\numberline {10}Result Analysis}{15}{section.10}%
+\contentsline {section}{\numberline {11}Novelty}{16}{section.11}%
+\contentsline {section}{\numberline {12}Future Scope}{16}{section.12}%
+\contentsline {section}{\numberline {13}SDG Goals}{17}{section.13}%
+\contentsline {section}{\numberline {14}Conclusion}{17}{section.14}%

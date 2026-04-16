@@ -63,10 +63,11 @@ async def get_patients(search: Optional[str] = Query(None)):
             cursor.execute('''
                 SELECT * FROM patients 
                 WHERE first_name LIKE ? OR last_name LIKE ? OR mrn LIKE ? OR id LIKE ?
+                ORDER BY rowid DESC
                 LIMIT 50
             ''', (query, query, query, query))
         else:
-            cursor.execute('SELECT * FROM patients LIMIT 50')
+            cursor.execute('SELECT * FROM patients ORDER BY rowid DESC LIMIT 50')
         rows = cursor.fetchall()
         return [dict(row) for row in rows]
     finally:
@@ -100,6 +101,7 @@ class NewEncounterModel(BaseModel):
     allergies: str = ""
     weightKg: str
     heightCm: str
+    codeStatus: Optional[str] = "FULL CODE"
     heartRate: str
     bpSys: str
     bpDia: str
@@ -119,14 +121,14 @@ class NewEncounterModel(BaseModel):
     cholesterol: Optional[str] = ""
     hemoglobin: Optional[str] = ""
     medications: Optional[List[MedicationEntry]] = []
+    existingPatientId: Optional[str] = ""
 
 @router.post("/encounter")
 async def create_new_encounter(encounter: NewEncounterModel):
     """Initializes a new Digital Twin directly from live clinical parameters."""
-    patient_id = f"PT-{random.randint(2000, 9999):04d}"
-    mrn = f"MRN-{random.randint(1000000, 9999999)}"
+    patient_id = encounter.existingPatientId if encounter.existingPatientId else f"PT-{random.randint(2000, 9999):04d}"
     timestamp = datetime.now().isoformat()
-
+    
     h_conn = get_db_connection()
     c_conn = get_clinical_db_connection()
 
@@ -134,14 +136,28 @@ async def create_new_encounter(encounter: NewEncounterModel):
     c_cursor = c_conn.cursor()
 
     try:
-        # 1. Write to Core Hospital DB (MPI)
-        h_cursor.execute('''
-            INSERT INTO patients (id, mrn, first_name, last_name, dob, gender, phone, address, pcp_name)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            patient_id, mrn, encounter.firstName, encounter.lastName, 
-            encounter.dob, encounter.gender, encounter.phone, encounter.address, "Dr. Smith (Attending)"
-        ))
+        # Check if patient exists to determine mrn and insert
+        h_cursor.execute("SELECT mrn FROM patients WHERE id = ?", (patient_id,))
+        existing_h_pat = h_cursor.fetchone()
+        
+        if existing_h_pat:
+            mrn = existing_h_pat['mrn']
+            # Optionally update demographics here if needed
+            h_cursor.execute('''
+                UPDATE patients 
+                SET first_name=?, last_name=?, dob=?, gender=?, phone=?, address=?
+                WHERE id=?
+            ''', (encounter.firstName, encounter.lastName, encounter.dob, encounter.gender, encounter.phone, encounter.address, patient_id))
+        else:
+            mrn = f"MRN-{random.randint(1000000, 9999999)}"
+            # 1. Write to Core Hospital DB (MPI)
+            h_cursor.execute('''
+                INSERT INTO patients (id, mrn, first_name, last_name, dob, gender, phone, address, pcp_name)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                patient_id, mrn, encounter.firstName, encounter.lastName, 
+                encounter.dob, encounter.gender, encounter.phone, encounter.address, "Dr. Smith (Attending)"
+            ))
 
         visit_id = f"ENC-{random.randint(100000, 999999)}"
         h_cursor.execute('''
@@ -159,7 +175,7 @@ async def create_new_encounter(encounter: NewEncounterModel):
             "weight": f"{encounter.weightKg} kg",
             "height": f"{encounter.heightCm} cm",
             "allergies": encounter.allergies,
-            "code_status": "FULL CODE"
+            "code_status": encounter.codeStatus
         }
         
         comorbidities = {
@@ -170,10 +186,17 @@ async def create_new_encounter(encounter: NewEncounterModel):
             "smoking": encounter.smoking
         }
 
-        c_cursor.execute('''
-            INSERT INTO patients (patient_id, demographics, comorbidities, active_status)
-            VALUES (?, ?, ?, 'active')
-        ''', (patient_id, json.dumps(demographics), json.dumps(comorbidities)))
+        if existing_h_pat:
+            c_cursor.execute('''
+                UPDATE patients 
+                SET demographics=?, comorbidities=?, active_status='active'
+                WHERE patient_id=?
+            ''', (json.dumps(demographics), json.dumps(comorbidities), patient_id))
+        else:
+            c_cursor.execute('''
+                INSERT INTO patients (patient_id, demographics, comorbidities, active_status)
+                VALUES (?, ?, ?, 'active')
+            ''', (patient_id, json.dumps(demographics), json.dumps(comorbidities)))
 
         # Vitals
         v_list = [
@@ -272,8 +295,55 @@ async def create_new_encounter(encounter: NewEncounterModel):
 # Allergens & Medicines Data (From CSV)
 # ---------------------------------------------------------
 
+@router.post("/patients/{patient_id}/medications")
+async def add_medication(patient_id: str, med: MedicationEntry):
+    c_conn = get_clinical_db_connection()
+    c_cursor = c_conn.cursor()
+    
+    timestamp = datetime.now().isoformat()
+    t_dict = med.timing.dict()
+    freq_tags = [k for k, v in t_dict.items() if v]
+    freq_str = json.dumps(freq_tags)
+    
+    try:
+        c_cursor.execute('''
+            INSERT INTO medication_history 
+            (patient_id, medication_name, start_date, dosage, dosage_unit, frequency, source) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            patient_id, med.name, timestamp, 
+            1.0, med.dosage, freq_str, "Clinical Override"
+        ))
+        c_conn.commit()
+    except Exception as e:
+        c_conn.close()
+        raise HTTPException(status_code=500, detail=str(e))
+    c_conn.close()
+
+    # Append to isolated twin JSON
+    patient_json_path = os.path.join(PATIENT_DB_DIR, f"{patient_id}.json")
+    if os.path.exists(patient_json_path):
+        with open(patient_json_path, 'r', encoding='utf-8') as f:
+            twin_data = json.load(f)
+        
+        if "medications" not in twin_data:
+            twin_data["medications"] = []
+            
+        twin_data["medications"].append({
+            "name": med.name,
+            "dosage": med.dosage,
+            "frequency": freq_tags,
+            "start_date": timestamp
+        })
+        
+        with open(patient_json_path, 'w', encoding='utf-8') as f:
+            json.dump(twin_data, f, indent=4)
+            
+    return {"status": "success", "message": "Medication added"}
+
 # ---------------------------------------------------------
 # OCR Lab Ingest for an existing Patient Twin
+# ---------------------------------------------------------
 # ---------------------------------------------------------
 from fastapi import UploadFile, File
 
@@ -448,7 +518,7 @@ async def get_bedboard(unit: Optional[str] = Query(None)):
                 FROM encounters e 
                 JOIN patients p ON e.patient_id = p.id
                 WHERE e.unit = ? AND e.status = 'Admitted'
-                ORDER BY e.room_bed
+                ORDER BY e.admission_time DESC
             ''', (unit,))
         else:
             cursor.execute('''
@@ -456,7 +526,7 @@ async def get_bedboard(unit: Optional[str] = Query(None)):
                 FROM encounters e 
                 JOIN patients p ON e.patient_id = p.id
                 WHERE e.status = 'Admitted'
-                ORDER BY e.unit, e.room_bed
+                ORDER BY e.admission_time DESC
             ''')
         rows = cursor.fetchall()
         return [dict(row) for row in rows]

@@ -25,7 +25,7 @@ if os.path.exists(DB_PATH):
 
 conn = sqlite3.connect(DB_PATH)
 cursor = conn.cursor()
-fake = Faker()
+fake = Faker('en_IN')
 
 # ---------------------------------------------------------
 # 1. Master Patient Index (MPI)
@@ -78,7 +78,7 @@ for i in range(1000):
 # Ensure our specific test patient PT-001 matches the existing twin dashboard demographics
 cursor.execute('''
 UPDATE patients 
-SET first_name = 'James', last_name = 'Wilson', dob = '1959-05-14', gender = 'M', pcp_name = 'Dr. Sarah Chen'
+SET first_name = 'Rajesh', last_name = 'Kumar', dob = '1959-05-14', gender = 'M', pcp_name = 'Dr. Sarah Sharma'
 WHERE id = 'PT-001'
 ''')
 

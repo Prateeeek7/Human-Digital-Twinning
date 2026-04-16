@@ -73,6 +73,31 @@
   --shadow-clinical: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
 
+[data-theme="dark"] {
+  --color-bg-root: #040506;
+  --color-bg-base: #0d1117;
+  --color-bg-surface: #161b22;
+  --color-bg-hover: #21262d;
+  --color-bg-active: #30363d;
+
+  --color-text-primary: #e6edf3;
+  --color-text-secondary: #8b949e;
+  --color-text-muted: #6e7681;
+
+  --color-border-subtle: #21262d;
+  --color-border-strong: #30363d;
+  --color-border-focus: #58a6ff;
+}
+
+[data-density="comfortable"] {
+  --spacing-2xs: 4px;
+  --spacing-xs: 6px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 20px;
+  --spacing-xl: 32px;
+}
+
 /* Base Styles */
 * {
   box-sizing: border-box;

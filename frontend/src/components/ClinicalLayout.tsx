@@ -20,6 +20,10 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
     const [isProviderSettingsOpen, setIsProviderSettingsOpen] = useState(false);
     const [providerSettingsTab, setProviderSettingsTab] = useState<'display' | 'alerts' | 'security'>('display');
 
+    // Discharge Modal State
+    const [isDischargeModalOpen, setIsDischargeModalOpen] = useState(false);
+    const [dischargeRemark, setDischargeRemark] = useState('');
+
     const openSettings = (tab: 'display' | 'alerts' | 'security') => {
         setProviderSettingsTab(tab);
         setIsProviderSettingsOpen(true);
@@ -44,7 +48,7 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
                     <Link to={`/board/${activeId}`} className={`as-nav-item ${location.pathname.startsWith('/board') ? 'active' : ''}`}>
                         <Activity size={14} /> Clinical Board
                     </Link>
-                    <Link to="/orders" className={`as-nav-item ${location.pathname === '/orders' ? 'active' : ''}`}>
+                    <Link to={`/orders/${activeId}`} className={`as-nav-item ${location.pathname.startsWith('/orders') ? 'active' : ''}`}>
                         <Stethoscope size={14} /> Orders
                     </Link>
                 </div>
@@ -66,6 +70,7 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
                                 <button className="sd-item" onClick={() => openSettings('display')}><Monitor size={14} /> Display Settings</button>
                                 <button className="sd-item" onClick={() => openSettings('alerts')}><Activity size={14} /> Alert Thresholds</button>
                                 <div className="sd-divider"></div>
+                                <button className="sd-item" onClick={() => { setIsDischargeModalOpen(true); setIsSettingsOpen(false); }}><LogOut size={14} /> Discharge Patient</button>
                                 <button className="sd-item text-critical" onClick={() => openSettings('security')}><UserX size={14} /> Session Lock</button>
                             </div>
                         )}
@@ -121,6 +126,54 @@ const ClinicalLayout: React.FC<ClinicalLayoutProps> = ({ children }) => {
             <main className="workspace">
                 {children}
             </main>
+
+            {/* Discharge Modal */}
+            {isDischargeModalOpen && (
+                <div style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 9999,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center'
+                }}>
+                    <div style={{
+                        backgroundColor: 'var(--color-bg-base)',
+                        padding: 'var(--spacing-xl)',
+                        borderRadius: 'var(--radius-md)',
+                        width: '400px',
+                        border: '1px solid var(--color-border-strong)',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--spacing-md)' }}>
+                            <h3 style={{ margin: 0, fontSize: 'var(--font-size-lg)', color: 'var(--color-text-primary)' }}>Discharge Patient</h3>
+                            <button onClick={() => setIsDischargeModalOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-text-muted)' }}><X size={18} /></button>
+                        </div>
+                        <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-secondary)', marginBottom: 'var(--spacing-md)', lineHeight: '1.4' }}>
+                            Are you sure you want to discharge patient <strong>{activeId}</strong>? Please provide a discharge remark below.
+                        </p>
+                        <textarea 
+                            value={dischargeRemark}
+                            onChange={(e) => setDischargeRemark(e.target.value)}
+                            placeholder="Enter discharge remarks / instructions..."
+                            style={{
+                                width: '100%', minHeight: '80px', padding: 'var(--spacing-sm)',
+                                fontSize: 'var(--font-size-sm)', fontFamily: 'inherit',
+                                border: '1px solid var(--color-border-strong)', borderRadius: 'var(--radius-sm)',
+                                marginBottom: 'var(--spacing-lg)',
+                                resize: 'vertical'
+                            }}
+                        />
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 'var(--spacing-sm)' }}>
+                            <button onClick={() => setIsDischargeModalOpen(false)} style={{ padding: '6px 16px', background: 'transparent', border: '1px solid var(--color-border-strong)', cursor: 'pointer', fontWeight: 600, fontSize: '11px' }}>CANCEL</button>
+                            <button onClick={() => {
+                                alert(`Patient ${activeId} discharged successfully.\nRemark: ${dischargeRemark}`);
+                                setIsDischargeModalOpen(false);
+                                setDischargeRemark('');
+                            }} style={{ padding: '6px 16px', backgroundColor: 'var(--color-accent-blue)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: 600, borderRadius: 'var(--radius-sm)', fontSize: '11px' }}>
+                                CONFIRM DISCHARGE
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div >
     );
 };
